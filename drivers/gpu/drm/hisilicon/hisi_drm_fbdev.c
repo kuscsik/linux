@@ -409,6 +409,8 @@ void hisi_drm_fbdev_exit(struct drm_device *dev)
 {
 	struct hisi_drm_private *private = dev->dev_private;
 
-
-	hisi_drm_fbdev_fini(private->fbdev);
+	if (private->fbdev) {
+		hisi_drm_fbdev_fini(private->fbdev);
+		private->fbdev = NULL;
+	}
 }

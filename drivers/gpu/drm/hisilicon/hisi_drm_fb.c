@@ -13,7 +13,13 @@
 #include <drm/drmP.h>
 #include <drm/drm_gem_cma_helper.h>
 #include <drm/drm_crtc_helper.h>
+#include <drm/drm_fb_helper.h>
+
 #include "hisi_drm_fb.h"
+#ifdef CONFIG_DRM_HISI_FBDEV
+#include "hisi_drm_fbdev.h"
+#endif
+#include "hisi_drm_drv.h"
 
 static inline struct hisi_drm_fb *to_hisi_drm_fb(struct drm_framebuffer *fb)
 {
@@ -158,8 +164,21 @@ struct drm_gem_cma_object *hisi_drm_fb_get_gem_obj(struct drm_framebuffer *fb,
 	return hisi_fb->obj[plane];
 }
 
+static void hisi_drm_output_poll_changed(struct drm_device *dev)
+{
+#ifdef CONFIG_DRM_HISI_FBDEV
+	struct hisi_drm_private *private = dev->dev_private;
+
+	if (private->fbdev)
+		drm_fb_helper_hotplug_event(&private->fbdev->fb_helper);
+	else
+		hisi_drm_fbdev_init(dev);
+#endif
+}
+
 static const struct drm_mode_config_funcs hisi_drm_mode_config_funcs = {
 	.fb_create = hisi_drm_fb_create,
+	.output_poll_changed = hisi_drm_output_poll_changed,
 };
 
 void hisi_drm_mode_config_init(struct drm_device *dev)

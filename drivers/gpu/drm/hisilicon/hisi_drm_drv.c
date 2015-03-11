@@ -14,6 +14,7 @@
 
 #include <drm/drmP.h>
 #include <drm/drm_fb_helper.h>
+#include <drm/drm_crtc_helper.h>
 
 #include "hisi_drm_ade.h"
 #include "hisi_drm_dsi.h"
@@ -51,24 +52,8 @@ static int hisi_drm_sub_drivers_init(struct drm_device *drm_dev)
 		so that sub drivers can access it */
 		pdev->dev.platform_data = drm_dev;
 	}
-#if 0
-	/* fbdev initialization should be put at last position */
-#ifdef CONFIG_DRM_HISI_FBDEV
-	ret = hisi_drm_fbdev_init(drm_dev);
-	if (ret) {
-		DRM_ERROR("failed to initialize fbdev\n");
-		goto err_fbdev_init;
-	}
-#endif
-#endif
+
 	return 0;
-
-#ifdef CONFIG_DRM_HISI_FBDEV
-/* err_fbdev_init:*/
-	hisi_drm_dsi_exit();
-#endif
-
-	return ret;
 }
 
 static void hisi_drm_sub_drivers_exit(struct drm_device *drm_dev)
@@ -76,9 +61,6 @@ static void hisi_drm_sub_drivers_exit(struct drm_device *drm_dev)
 	struct device *dev = &drm_dev->platformdev->dev;
 
 	of_platform_depopulate(dev);
-#ifdef CONFIG_DRM_HISI_FBDEV
-	hisi_drm_fbdev_exit(drm_dev);
-#endif
 }
 
 static int hisi_drm_unload(struct drm_device *drm_dev)
@@ -87,6 +69,9 @@ static int hisi_drm_unload(struct drm_device *drm_dev)
 
 	drm_mode_config_cleanup(drm_dev);
 	hisi_drm_sub_drivers_exit(drm_dev);
+#ifdef CONFIG_DRM_HISI_FBDEV
+	hisi_drm_fbdev_exit(drm_dev);
+#endif
 	kfree(private);
 	drm_dev->dev_private = NULL;
 	return 0;
@@ -119,6 +104,8 @@ static int hisi_drm_load(struct drm_device *drm_dev, unsigned long flags)
 		goto err_sub_drivers_init;
 	}
 
+	/* init kms poll for handling hpd */
+	drm_kms_helper_poll_init(drm_dev);
 
 	DRM_DEBUG_DRIVER("exit successfully.\n");
 	return 0;
