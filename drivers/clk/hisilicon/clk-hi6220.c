@@ -35,9 +35,9 @@ static struct hisi_fixed_rate_clock hi6220_fixed_rate_clks[] __initdata = {
 	{ HI6220_PLL_BBP,	"bbppll0",	NULL, CLK_IS_ROOT, 245760000, },
 	{ HI6220_PLL_GPU,	"gpupll",	NULL, CLK_IS_ROOT, 1000000000,},
 	{ HI6220_PLL1_DDR,	"ddrpll1",	NULL, CLK_IS_ROOT, 1066000000,},
-	{ HI6220_PLL_SYS,	"syspll",	NULL, CLK_IS_ROOT, 1200000000,},
-	{ HI6220_PLL_SYS_MEDIA,	"media_syspll",	NULL, CLK_IS_ROOT, 1200000000,},
-	{ HI6220_DDR_SRC,	"ddr_sel_src",  NULL, CLK_IS_ROOT, 1200000000,},
+	{ HI6220_PLL_SYS,	"syspll",	NULL, CLK_IS_ROOT, 1190400000,},
+	{ HI6220_PLL_SYS_MEDIA,	"media_syspll",	NULL, CLK_IS_ROOT, 1190400000,},
+	{ HI6220_DDR_SRC,	"ddr_sel_src",  NULL, CLK_IS_ROOT, 1190400000,},
 	{ HI6220_PLL_MEDIA,	"media_pll",    NULL, CLK_IS_ROOT, 1440000000,},
 	{ HI6220_PLL_DDR,	"ddrpll0",      NULL, CLK_IS_ROOT, 1600000000,},
 };
@@ -77,9 +77,33 @@ static struct hisi_clock_data *clk_data_ao;
 
 static void __init hi6220_clk_ao_init(struct device_node *np)
 {
+	const char *p;
+	int n = 0, m;
+	u32 u;
+
 	clk_data_ao = hisi_clk_init(np, HI6220_AO_NR_CLKS);
 	if (!clk_data_ao)
 		return;
+
+	/* override default freqs with any mentioned in DT */
+	while (1) {
+		if (of_property_read_string_index(np, "clock-names", n, &p))
+			break;
+		for (m = 0; m < ARRAY_SIZE(hi6220_fixed_rate_clks); m++) {
+			if (strcmp(hi6220_fixed_rate_clks[m].name, p))
+				continue;
+			if (of_property_read_u32_index(np, "clock-frequency",
+						       n, &u))
+				break;
+			pr_debug("%s: fixed clk %s from %lu to %u\n", __func__,
+			       hi6220_fixed_rate_clks[m].name,
+			       hi6220_fixed_rate_clks[m].fixed_rate, u);
+			hi6220_fixed_rate_clks[m].fixed_rate = u;
+		}
+		if (m != ARRAY_SIZE(hi6220_fixed_rate_clks))
+			break;
+		n++;
+	}
 
 	hisi_clk_register_fixed_rate(hi6220_fixed_rate_clks,
 				ARRAY_SIZE(hi6220_fixed_rate_clks),
