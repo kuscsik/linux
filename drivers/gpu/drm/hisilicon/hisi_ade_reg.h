@@ -108,6 +108,7 @@
 #define ADE_OVLY_CH_ALP_SEL_OFST	(2)
 #define ADE_OVLY_CH_UNDER_ALP_SEL_OFST	(4)
 #define ADE_OVLY_CH_EN_OFST		(6)
+#define ADE_OVLY_CH_ALP_GBL_OFST	(15)
 #define ADE_OVLY_CH_SEL_OFST		(28)
 
 /* media regs */

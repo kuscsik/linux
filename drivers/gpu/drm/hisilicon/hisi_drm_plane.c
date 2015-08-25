@@ -13,11 +13,11 @@
 #include <drm/drmP.h>
 #include <drm/drm_plane_helper.h>
 #include <drm/drm_atomic_helper.h>
+#include <drm/drm_atomic.h>
 
 #include "hisi_drm_drv.h"
 #include "hisi_drm_plane.h"
 #include "hisi_drm_crtc.h"
-#include "hisi_ade.h"
 
 #define to_hisi_plane(plane) \
 		container_of(plane, struct hisi_plane, base)
@@ -46,21 +46,57 @@ static void hisi_plane_atomic_update(struct drm_plane *plane,
 	struct hisi_plane_funcs *ops = hplane->ops;
 	struct drm_plane_state	*hstate	= plane->state;
 
-	DRM_DEBUG_DRIVER("enter.\n");
 	if (!hstate->crtc)
 		return;
 	
 	if (ops->atomic_update)
 		ops->atomic_update(hplane, old_state);
-
-	DRM_DEBUG_DRIVER("exit success.\n");
 }
 
 int hisi_plane_atomic_check(struct drm_plane *plane,
-				     struct drm_plane_state *state)
+			    struct drm_plane_state *state)
 {
-	DRM_DEBUG_DRIVER("enter.\n");
-	DRM_DEBUG_DRIVER("exit success.\n");
+	struct drm_framebuffer *fb = state->fb;
+	struct drm_crtc *crtc = state->crtc;
+	struct drm_crtc_state *crtc_state;
+	u32 src_x = state->src_x >> 16;
+	u32 src_y = state->src_y >> 16;
+	u32 src_w = state->src_w >> 16;
+	u32 src_h = state->src_h >> 16;
+	int crtc_x = state->crtc_x;
+	int crtc_y = state->crtc_y;
+	u32 crtc_w = state->crtc_w;
+	u32 crtc_h = state->crtc_h;
+
+
+	if (!crtc || !fb)
+		return 0;
+
+	if (state->rotation != BIT(DRM_ROTATE_0)) {
+		DRM_ERROR("Rotation not support!!!\n");
+		return -EINVAL;
+	}
+
+	crtc_state = drm_atomic_get_crtc_state(state->state, crtc);
+	if (IS_ERR(crtc_state))
+		return PTR_ERR(crtc_state);
+
+	if (src_w != crtc_w || src_h != crtc_h) {
+		DRM_ERROR("Scale not support!!!\n");
+		return -EINVAL;
+	}
+
+	if (src_x + src_w > fb->width ||
+	    src_y + src_h > fb->height)
+		return -EINVAL;
+
+	if (crtc_x < 0 || crtc_y < 0)
+		return -EINVAL;
+
+	if (crtc_x + crtc_w > crtc_state->adjusted_mode.hdisplay ||
+	    crtc_y + crtc_h > crtc_state->adjusted_mode.vdisplay)
+		return -EINVAL;
+
 	return 0;
 }
 
@@ -96,26 +132,26 @@ void hisi_plane_destroy(struct drm_plane *plane)
 
 static void hisi_plane_atomic_reset(struct drm_plane *plane)
 {
-	struct hisi_plane *hplane = to_hisi_plane(plane);
-	struct hisi_plane_state *hstate;
+	struct hisi_plane_state *state;
 
 	if (plane->state && plane->state->fb)
 		drm_framebuffer_unreference(plane->state->fb);
 
-	kfree(plane->state);
-	plane->state = NULL;
+	if (plane->state)
+		kfree(to_hisi_plane_state(plane->state));
 
-	hstate = kzalloc(sizeof(*hstate), GFP_KERNEL);
-	if (hstate == NULL)
+	state = kzalloc(sizeof(*state), GFP_KERNEL);
+	if (state == NULL)
 		return;
 
 	/* set to default value */
-	hstate->zpos = hplane->ch;
-	hstate->base.rotation = BIT(DRM_ROTATE_0);
-	hstate->alpha = 255;
-	hstate->blending = ALPHA_BLENDING_NONE;
+	state->zpos = plane->type == DRM_PLANE_TYPE_PRIMARY ? 0 :
+		drm_plane_index(plane);
+	state->base.rotation = BIT(DRM_ROTATE_0);
+	state->alpha = 255;
+	state->blend = ALPHA_BLENDING_NONE;
 
-	plane->state = &hstate->base;
+	plane->state = &state->base;
 	plane->state->plane = plane;
 }
 
@@ -158,8 +194,8 @@ static int hisi_plane_atomic_set_property(struct drm_plane *plane,
 		hstate->zpos = val;
 	else if (property == priv->alpha_prop)
 		hstate->alpha = val;
-	else if (property == priv->blending_prop)
-		hstate->blending = val;
+	else if (property == priv->blend_prop)
+		hstate->blend = val;
 	else
 		return -EINVAL;
 
@@ -178,8 +214,8 @@ static int hisi_plane_atomic_get_property(struct drm_plane *plane,
 		*val = hstate->zpos;
 	else if (property == priv->alpha_prop)
 		*val = hstate->alpha;
-	else if (property == priv->blending_prop)
-		*val = hstate->blending;
+	else if (property == priv->blend_prop)
+		*val = hstate->blend;
 	else
 		return -EINVAL;
 
@@ -200,7 +236,7 @@ static struct drm_plane_funcs hisi_plane_funcs = {
 
 int hisi_drm_plane_init(struct drm_device *dev,
 			struct hisi_plane *hplane,
-				enum drm_plane_type type)
+			enum drm_plane_type type)
 {
 	struct hisi_plane_funcs *ops = hplane->ops;
 	const u32 *fmts;
@@ -221,8 +257,8 @@ int hisi_drm_plane_init(struct drm_device *dev,
 
 	drm_plane_helper_add(&hplane->base, &hisi_plane_helper_funcs);
 
-	/* install  properties */
-	if (ops->install_properties) {
+	/* install overlay plane properties */
+	if (type == DRM_PLANE_TYPE_OVERLAY && ops->install_properties) {
 		ret = ops->install_properties(dev, hplane);
 		if (ret)
 			return ret;

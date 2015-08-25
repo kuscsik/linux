@@ -15,16 +15,18 @@
 
 struct hisi_drm_private {
 	struct hisi_drm_fbdev	*fbdev;
-	struct drm_crtc		*crtc;
 
 	/* plane properties */
 	struct drm_property *zpos_prop;
 	struct drm_property *alpha_prop;
-	struct drm_property *blending_prop;
+	struct drm_property *blend_prop;
 	
 	/* read only capabilities properties */
 	struct drm_property *cap_scl_prop; /* 0: unsupport, 1: support */
 	struct drm_property *cap_rot_prop;  /*  */
+
+	/* crtc properties */
+	struct drm_property *comp_type_prop;
 };
 
 #endif /* __HISI_DRM_DRV_H__ */

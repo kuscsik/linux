@@ -48,7 +48,7 @@ struct hisi_plane_state {
         struct drm_plane_state base;
 	u8 zpos;  /* z order */
 	u8 alpha; /* Alpha value applied to the whole plane */
-	u32 blending; /* blending cases: none, premult and coverage */
+	u32 blend; /* blending cases: none, premult and coverage */
 };
 
 int hisi_drm_plane_init(struct drm_device *dev,

@@ -27,7 +27,7 @@
 
 #include "hisi_drm_drv.h"
 #include "hisi_drm_fb.h"
-#include "hisi_ade.h"
+#include "hisi_drm_crtc.h"
 #ifdef CONFIG_DRM_HISI_FBDEV
 #include "hisi_drm_fbdev.h"
 #endif
@@ -121,7 +121,7 @@ static struct dma_buf *hisi_drm_gem_prime_export(struct drm_device *dev,
 
 static struct drm_driver hisi_drm_driver = {
 	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_PRIME
-				| DRIVER_HAVE_IRQ | DRIVER_IRQ_SHARED,
+				| DRIVER_HAVE_IRQ,
 	.load			= hisi_drm_load,
 	.unload                 = hisi_drm_unload,
 	.fops			= &hisi_drm_fops,
@@ -143,11 +143,9 @@ static struct drm_driver hisi_drm_driver = {
 	.gem_prime_vunmap	= drm_gem_cma_prime_vunmap,
 	.gem_prime_mmap		= drm_gem_cma_prime_mmap,
 
-	.irq_handler		= hisi_drm_irq_handler,
-
 	.get_vblank_counter	= drm_vblank_count,
-	.enable_vblank		= hisi_drm_enable_vblank,
-	.disable_vblank		= hisi_drm_disable_vblank,
+	.enable_vblank		= hisi_drm_crtc_enable_vblank,
+	.disable_vblank		= hisi_drm_crtc_disable_vblank,
 
 	.name			= "hisi",
 	.desc			= "Hisilicon Terminal SoCs DRM Driver",

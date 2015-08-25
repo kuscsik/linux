@@ -744,6 +744,31 @@ unsigned int drm_crtc_index(struct drm_crtc *crtc)
 }
 EXPORT_SYMBOL(drm_crtc_index);
 
+/**
+ * drm_get_crtc_from_index - find a registered CRTC from the index
+ * @dev: DRM device
+ * @index: index of a registered CRTC
+ *
+ * Given a index, return the registered CRTC within a DRM
+ * device's list of CRTCs.
+ */
+struct drm_crtc *drm_get_crtc_from_index(struct drm_device *dev,
+					 unsigned int index)
+{
+	unsigned int index_tmp = 0;
+	struct drm_crtc *crtc;
+
+	list_for_each_entry(crtc, &dev->mode_config.crtc_list, head) {
+		if (index_tmp == index)
+			return crtc;
+
+		index_tmp++;
+	}
+
+	BUG();
+}
+EXPORT_SYMBOL(drm_get_crtc_from_index);
+
 /*
  * drm_mode_remove - remove and free a mode
  * @connector: connector list to modify
