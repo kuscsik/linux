@@ -959,6 +959,7 @@ static int hisi_drm_connector_mode_valid(struct drm_connector *connector,
 	struct drm_encoder *encoder = &dsi->base.base;
 	struct drm_encoder_slave_funcs *sfuncs = get_slave_funcs(encoder);
 	int ret = MODE_OK;
+	u32 vrate;
 
 	if (sfuncs->mode_valid) {
 		ret = sfuncs->mode_valid(encoder, mode);
@@ -966,8 +967,18 @@ static int hisi_drm_connector_mode_valid(struct drm_connector *connector,
 			return ret;
 	}
 
+	/*
+	 * some work well modes which want to add prefer type
+	 * others will clear prefer
+	 */
+	vrate = mode->vrefresh = drm_mode_vrefresh(mode);
+	if (mode->hdisplay == 1280 && mode->vdisplay == 720)
+		mode->type |= DRM_MODE_TYPE_PREFERRED;
+	else
+		mode->type &= ~DRM_MODE_TYPE_PREFERRED;
+
 	DRM_DEBUG_DRIVER("exit success. ret=%d\n", ret);
-	return ret;
+	return MODE_OK;
 }
 
 static struct drm_connector_helper_funcs hisi_dsi_connector_helper_funcs = {
