@@ -1,0 +1,60 @@
+Device-Tree bindings for DesignWare DSI Host Controller v1.20a driver
+
+A DSI Host Controller resides in the middle of display controller and external
+HDMI converter.
+
+Required properties:
+- compatible: value should be "hisilicon,hi6220-dsi".
+- reg: physical base address and length of the controller's registers.
+- clocks: the clocks needed.
+- clock-names: the name of the clocks.
+- ports: contains DSI controller input and output sub port. The input port
+  connects to ADE output port, and output port connected to external HDMI
+  endpoint. See Documentation/devicetree/bindings/graph.txt for more device
+  graph info.
+
+A example of HiKey board hi6220 SoC and board specific DT entry:
+Example:
+
+SoC specific:
+	dsi: dsi@0xf4107800 {
+		compatible = "hisilicon,hi6220-dsi";
+		reg = <0x0 0xf4107800 0x0 0x100>;
+		clocks = <&media_ctrl  HI6220_DSI_PCLK>;
+		clock-names = "pclk_dsi";
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+				dsi_in: endpoint {
+						remote-endpoint = <&ade_out>;
+				};
+			};
+
+			port@1 {
+				reg = <1>; /* 1 for output port */
+				dsi_out: endpoint {
+						 remote-endpoint = <&adv7533_in>;
+				};
+			};
+		};
+	};
+
+Board specific:
+	i2c2: i2c@f7102000 {
+		...
+
+		adv7533: adv7533@39 {
+			...
+
+			port {
+				adv7533_in: endpoint {
+					remote-endpoint = <&dsi_out>;
+				};
+			};
+		};
+	};
+
