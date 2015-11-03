@@ -170,7 +170,7 @@ static struct dma_buf *hisi_drm_gem_prime_export(struct drm_device *dev,
 
 static struct drm_driver hisi_drm_driver = {
 	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_PRIME |
-				  DRIVER_HAVE_IRQ,
+				  DRIVER_HAVE_IRQ | DRIVER_ATOMIC,
 	.lastclose		= hisi_drm_lastclose,
 	.load			= hisi_drm_load,
 	.unload                 = hisi_drm_unload,
