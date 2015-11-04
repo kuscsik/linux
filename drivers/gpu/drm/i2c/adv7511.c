@@ -414,12 +414,12 @@ static void adv7511_dsi_receiver_dpms(struct adv7511 *adv7511)
 
 		/* set number of dsi lanes */
 		regmap_write(adv7511->regmap_cec, 0x1c, dsi->lanes << 4);
-#if 0
+
 		/* reset internal timing generator */
 		regmap_write(adv7511->regmap_cec, 0x27, 0xcb);
 		regmap_write(adv7511->regmap_cec, 0x27, 0x8b);
 		regmap_write(adv7511->regmap_cec, 0x27, 0xcb);
-#endif
+
 		/* enable hdmi */
 		regmap_write(adv7511->regmap_cec, 0x03, 0x89);
 		/* disable test mode */
