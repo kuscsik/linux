@@ -452,6 +452,10 @@ static bool ade_crtc_mode_fixup(struct drm_crtc *crtc,
 
 	DRM_DEBUG_DRIVER("enter.\n");
 
+	/* skip empty mode */
+	if (clock_kHz == 0)
+		return true;
+
 	if (!ctx->power_on)
 		if (ade_power_up(ctx))
 			DRM_ERROR("%s: failed to power up ade\n", __func__);
