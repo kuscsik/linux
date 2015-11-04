@@ -1131,6 +1131,7 @@ static int adv7533_bridge_attach(struct drm_bridge *bridge)
 	adv->connector.polled = DRM_CONNECTOR_POLL_HPD;
 #endif
 
+	adv->connector.dpms = DRM_MODE_DPMS_OFF;
 	ret = drm_connector_init(bridge->dev, &adv->connector,
 			&adv7533_connector_funcs, DRM_MODE_CONNECTOR_HDMIA);
 	if (ret) {
