@@ -720,6 +720,9 @@ adv7511_detect(struct adv7511 *adv7511,
 	}
 #endif
 
+	DRM_DEBUG_DRIVER("status=%d, hpd=%d, powered=%d.\n", status, hpd,
+			adv7511->powered);
+
 	adv7511->status = status;
 	return status;
 }
