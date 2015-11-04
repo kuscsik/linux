@@ -948,11 +948,11 @@ static struct drm_display_mode mode_800x600 = {
 	.height_mm	= 420,
 };
 
-static int adv7533_connector_get_modes(struct drm_connector *connector)
+static int adv7533_connector_get_default_modes(struct drm_connector *connector)
 {
 	struct drm_display_mode *mode;
 
-DRM_DEBUG_DRIVER("adv7511 enter.\n"); 
+	DRM_DEBUG_DRIVER("enter.\n"); 
 	/* 1280x720@60: 720P */
 	mode = drm_mode_duplicate(connector->dev, &mode_720p);
 	if (!mode) {
@@ -974,15 +974,19 @@ static struct adv7511 *connector_to_adv7511(struct drm_connector *connector)
 {
 	return container_of(connector, struct adv7511, connector);
 }
-#if 0
+
 /* Connector helper functions */
 static int adv7533_connector_get_modes(struct drm_connector *connector)
 {
 	struct adv7511 *adv = connector_to_adv7511(connector);
+	unsigned int count;
 
-	return adv7511_get_modes(adv, connector);
+	count = adv7511_get_modes(adv, connector);
+	count += adv7533_connector_get_default_modes(connector); 
+
+	return count;
 }
-#endif
+
 static struct drm_encoder *
 adv7533_connector_best_encoder(struct drm_connector *connector)
 {
