@@ -430,17 +430,6 @@ static void ade_crtc_disable(struct drm_crtc *crtc)
 	DRM_DEBUG_DRIVER("exit success.\n");
 }
 
-static void ade_crtc_mode_prepare(struct drm_crtc *crtc)
-{
-	struct ade_crtc *acrtc = to_ade_crtc(crtc);
-	struct ade_hw_ctx *ctx = acrtc->ctx;
-
-	DRM_DEBUG_DRIVER("enter.\n");
-	if (!ctx->power_on)
-		(void) ade_power_up(ctx);
-	DRM_DEBUG_DRIVER("exit success.\n");
-}
-
 static bool ade_crtc_mode_fixup(struct drm_crtc *crtc,
 			 const struct drm_display_mode *mode,
 			 struct drm_display_mode *adj_mode)
@@ -455,10 +444,6 @@ static bool ade_crtc_mode_fixup(struct drm_crtc *crtc,
 	/* skip empty mode */
 	if (clock_kHz == 0)
 		return true;
-
-	if (!ctx->power_on)
-		if (ade_power_up(ctx))
-			DRM_ERROR("%s: failed to power up ade\n", __func__);
 
 	do {
 		ret = clk_set_rate(ctx->ade_pix_clk, clock_kHz * 1000);
@@ -491,6 +476,8 @@ static void ade_crtc_mode_set_nofb(struct drm_crtc *crtc)
 
 	DRM_DEBUG_DRIVER("enter.\n");
 	acrtc->dmode = &acrtc->base.state->mode;
+	if (!ctx->power_on)
+		(void) ade_power_up(ctx);
 	ade_ldi_set_mode(ctx, &acrtc->base.state->mode);
 	DRM_DEBUG_DRIVER("exit success.\n");
 }
@@ -529,7 +516,6 @@ static void ade_crtc_atomic_flush(struct drm_crtc *crtc,
 static const struct drm_crtc_helper_funcs ade_crtc_helper_funcs = {
 	.enable		= ade_crtc_enable,
 	.disable	= ade_crtc_disable,
-	.prepare	= ade_crtc_mode_prepare,
 	.mode_fixup	= ade_crtc_mode_fixup,
 	.mode_set_nofb	= ade_crtc_mode_set_nofb,
 	.atomic_begin	= ade_crtc_atomic_begin,
