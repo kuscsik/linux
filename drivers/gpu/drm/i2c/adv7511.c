@@ -664,6 +664,8 @@ static int adv7511_get_modes(struct adv7511 *adv7511,
 				     ADV7511_INT1_DDC_ERROR);
 		}
 		adv7511->current_edid_segment = -1;
+		/* wait some time for edid is ready */
+		msleep(200);
 	}
 
 	edid = drm_do_get_edid(connector, adv7511_get_edid_block, adv7511);
