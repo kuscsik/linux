@@ -35,18 +35,9 @@
 
 #define to_ade_crtc(crtc) \
 	container_of(crtc, struct ade_crtc, base)
-#define to_ade_crtc_state(state) \
-	container_of(state, struct ade_crtc_state, base)
 
 #define to_ade_plane(plane) \
 	container_of(plane, struct ade_plane, base)
-
-enum composotion_type {
-	COMPOSITION_UNKNOWN	= 0,
-	COMPOSITION_GLES	= 1,
-	COMPOSITION_HWC		= 2,
-	COMPOSITION_MIXED	= 3
-};
 
 struct ade_hw_ctx {
 	void __iomem  *base;
@@ -60,11 +51,6 @@ struct ade_hw_ctx {
 	struct clk *media_noc_clk;
 	struct clk *ade_pix_clk;
 	bool power_on;
-};
-
-struct ade_crtc_state {
-	struct drm_crtc_state base;
-	u8 comp_type;
 };
 
 struct ade_crtc {
@@ -522,125 +508,15 @@ static const struct drm_crtc_helper_funcs ade_crtc_helper_funcs = {
 	.atomic_flush	= ade_crtc_atomic_flush,
 };
 
-static void ade_crtc_atomic_reset(struct drm_crtc *crtc)
-{
-	struct ade_crtc_state *state;
-
-	if (crtc->state)
-		kfree(to_ade_crtc_state(crtc->state));
-
-	state = kzalloc(sizeof(*state), GFP_KERNEL);
-	if (state == NULL)
-		return;
-
-	/* set to default value */
-	state->comp_type = COMPOSITION_UNKNOWN;
-
-	crtc->state = &state->base;
-	crtc->state->crtc = crtc;
-}
-
-static struct drm_crtc_state *ade_crtc_atomic_duplicate_state(struct drm_crtc *crtc)
-{
-	struct ade_crtc_state *state;
-	struct ade_crtc_state *copy;
-
-	if (WARN_ON(!crtc->state))
-		return NULL;
-
-	state = to_ade_crtc_state(crtc->state);
-	copy = kmemdup(state, sizeof(*state), GFP_KERNEL);
-	if (copy == NULL)
-		return NULL;
-
-	__drm_atomic_helper_crtc_duplicate_state(crtc, &copy->base);
-
-	return &copy->base;
-}
-
-static void ade_crtc_atomic_destroy_state(struct drm_crtc *crtc,
-					  struct drm_crtc_state *state)
-{
-	__drm_atomic_helper_crtc_destroy_state(crtc, state);
-	kfree(to_ade_crtc_state(state));
-}
-
-static int ade_crtc_atomic_set_property(struct drm_crtc *crtc,
-					 struct drm_crtc_state *state,
-					 struct drm_property *property,
-					 uint64_t val)
-{
-	struct hisi_drm_private *priv = crtc->dev->dev_private;
-	struct ade_crtc_state *astate = to_ade_crtc_state(state);
-
-	DRM_DEBUG_DRIVER("\"%s\": val=%d\n", property->name, (int)val);
-
-	if (property == priv->comp_type_prop)
-		astate->comp_type = val;
-	else
-		return -EINVAL;
-
-	return 0;
-}
-
-static int ade_crtc_atomic_get_property(struct drm_crtc *crtc,
-					 const struct drm_crtc_state *state,
-					 struct drm_property *property,
-					 uint64_t *val)
-{
-	struct hisi_drm_private *priv = crtc->dev->dev_private;
-	struct ade_crtc_state *astate = to_ade_crtc_state(state);
-
-	if (property == priv->comp_type_prop)
-		*val =	astate->comp_type;
-	else
-		return -EINVAL;
-
-	return 0;
-}
-
 static const struct drm_crtc_funcs ade_crtc_funcs = {
 	.destroy	= drm_crtc_cleanup,
 	.set_config	= drm_atomic_helper_set_config,
 	.page_flip	= drm_atomic_helper_page_flip,
-	.reset		= ade_crtc_atomic_reset,
+	.reset		= drm_atomic_helper_crtc_reset,
 	.set_property = drm_atomic_helper_crtc_set_property,
-	.atomic_duplicate_state	= ade_crtc_atomic_duplicate_state,
-	.atomic_destroy_state	= ade_crtc_atomic_destroy_state,
-	.atomic_set_property = ade_crtc_atomic_set_property,
-	.atomic_get_property = ade_crtc_atomic_get_property,
+	.atomic_duplicate_state	= drm_atomic_helper_crtc_duplicate_state,
+	.atomic_destroy_state	= drm_atomic_helper_crtc_destroy_state,
 };
-
-static const struct drm_prop_enum_list ade_composition_type_enum_list[] = {
-	{ COMPOSITION_UNKNOWN, "composition unknown" },
-	{ COMPOSITION_GLES, "composition GLES" },
-	{ COMPOSITION_HWC, "composition hwc" },
-	{ COMPOSITION_MIXED, "composition mixed" }
-};
-
-int ade_install_crtc_properties(struct drm_device *dev,
-				struct drm_mode_object *obj)
-{
-	struct hisi_drm_private *priv = dev->dev_private;
-	struct drm_property *prop;
-
-	/*
-	 * create and attach composition type properties
-	 */
-	prop = priv->comp_type_prop;
-	if (!prop) {
-		prop = drm_property_create_enum(dev, 0,	"comp_type",
-				ade_composition_type_enum_list,
-				ARRAY_SIZE(ade_composition_type_enum_list));
-		if (!prop)
-			return 0;
-
-		priv->comp_type_prop = prop;
-	}
-	drm_object_attach_property(obj, prop, COMPOSITION_UNKNOWN);
-
-	return 0;
-}
 
 static int ade_crtc_init(struct drm_device *dev, struct drm_crtc *crtc,
 		  struct drm_plane *plane)
@@ -655,10 +531,6 @@ static int ade_crtc_init(struct drm_device *dev, struct drm_crtc *crtc,
 	}
 
 	drm_crtc_helper_add(crtc, &ade_crtc_helper_funcs);
-
-	ret = ade_install_crtc_properties(dev, &crtc->base);
-	if (ret)
-		return ret;
 
 	return 0;
 }
@@ -797,8 +669,6 @@ static void ade_overlay_set(struct ade_crtc *acrtc, u8 ch, u32 x0, u32 y0,
 {
 	struct ade_hw_ctx *ctx = acrtc->ctx;
 	void __iomem *base = ctx->base;
-	struct ade_crtc_state *state = to_ade_crtc_state(acrtc->base.state);
-	u8 comp_type = state->comp_type;
 	u8 ovly_ch = 0;
 	u8 x = ADE_OVLY2;
 	u8 glb_alpha = 255;
@@ -812,12 +682,11 @@ static void ade_overlay_set(struct ade_crtc *acrtc, u8 ch, u32 x0, u32 y0,
 	ade_get_blending_params(fmt, glb_alpha, &alp_mode, &alp_sel,
 				    &under_alp_sel);
 
-	DRM_DEBUG_DRIVER("channel%d--> ovly_ch=%d: alp_mode=%d, alp_sel=%d, under_alp_sel=%d, composition_type=%d\n",
+	DRM_DEBUG_DRIVER("channel%d--> ovly_ch=%d: alp_mode=%d, alp_sel=%d, under_alp_sel=%d\n",
 			ch+1, ovly_ch+1,
 			alp_mode,
 			alp_sel,
-			under_alp_sel,
-			comp_type);
+			under_alp_sel);
 
 	/* overlay routing setting */
 	writel(x0 << 16 | y0, base + ADE_OVLY_CH_XY0(ovly_ch));

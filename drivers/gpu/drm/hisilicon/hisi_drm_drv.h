@@ -14,8 +14,6 @@ struct hisi_drm_private {
 #ifdef CONFIG_DRM_HISI_FBDEV
 	struct drm_fbdev_cma *fbdev;
 #endif
-	/* crtc properties */
-	struct drm_property *comp_type_prop;
 };
 
 #endif /* __HISI_DRM_DRV_H__ */
