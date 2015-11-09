@@ -35,10 +35,10 @@
 #define R(x) ((u32)((((u64)(x) * (u64)1000 * (u64)dsi->vm.pixelclock) / \
 	      phy->lane_byte_clk_kHz)))
 
-#define to_hisi_dsi_encoder(encoder) \
+#define encoder_to_dsi(encoder) \
 	container_of(encoder, struct hisi_dsi, encoder)
 
-#define to_hisi_dsi_host(host) \
+#define host_to_dsi(host) \
 	container_of(host, struct hisi_dsi, host)
 
 struct mipi_phy_register {
@@ -77,35 +77,31 @@ struct mipi_phy_register {
 	u32 burst_mode;
 };
 
+struct dsi_hw_ctx {
+	void __iomem *base;
+	struct clk *dsi_cfg_clk;
+	int nominal_pixel_clk_kHz;
+};
+
 struct hisi_dsi {
-	struct platform_device *pdev;
-	struct device_node *device_node;
 	struct drm_encoder encoder;
-	struct drm_bridge  bridge;
-	struct drm_bridge  ext_bridge;
+	struct drm_bridge *bridge;
 	struct mipi_dsi_host host;
 	struct mipi_phy_register phy;
 	struct videomode vm;
+	struct dsi_hw_ctx *ctx;
 
 	u32 lanes;
 	u32 format;
 	u32 date_enable_pol;
 	u32 mode_flags;
 	u8 color_mode;
-	void *ctx;
-
 	bool enable;
-	bool registered;
 };
 
-struct hisi_dsi_context {
+struct dsi_data {
 	struct hisi_dsi dsi;
-
-	struct clk *dsi_cfg_clk;
-	struct drm_device *dev;
-
-	void __iomem *base;
-	int nominal_pixel_clk_kHz;
+	struct dsi_hw_ctx ctx;
 };
 
 struct dsi_phy_seq_info {
@@ -285,7 +281,7 @@ void set_dsi_phy_rate_equal_or_faster(u32 *phy_freq_kHz,
 
 int dsi_mipi_init(struct hisi_dsi *dsi)
 {
-	struct hisi_dsi_context *ctx = dsi->ctx;
+	struct dsi_hw_ctx *ctx = dsi->ctx;
 	struct mipi_phy_register *phy = &dsi->phy;
 	void __iomem *base = ctx->base;
 
@@ -541,10 +537,10 @@ int dsi_mipi_init(struct hisi_dsi *dsi)
 	return 0;
 }
 
-void hisi_dsi_drm_encoder_disable(struct drm_encoder *encoder)
+void dsi_drm_encoder_disable(struct drm_encoder *encoder)
 {
-	struct hisi_dsi *dsi = to_hisi_dsi_encoder(encoder);
-	struct hisi_dsi_context *ctx = dsi->ctx;
+	struct hisi_dsi *dsi = encoder_to_dsi(encoder);
+	struct dsi_hw_ctx *ctx = dsi->ctx;
 	void __iomem *base = ctx->base;
 
 	DRM_DEBUG_DRIVER("enter\n");
@@ -559,10 +555,10 @@ void hisi_dsi_drm_encoder_disable(struct drm_encoder *encoder)
 	dsi->enable = false;
 }
 
-void hisi_dsi_drm_encoder_enable(struct drm_encoder *encoder)
+void dsi_drm_encoder_enable(struct drm_encoder *encoder)
 {
-	struct hisi_dsi *dsi = to_hisi_dsi_encoder(encoder);
-	struct hisi_dsi_context *ctx = dsi->ctx;
+	struct hisi_dsi *dsi = encoder_to_dsi(encoder);
+	struct dsi_hw_ctx *ctx = dsi->ctx;
 	int ret;
 
 	/* mipi dphy clock enable */
@@ -579,86 +575,57 @@ void hisi_dsi_drm_encoder_enable(struct drm_encoder *encoder)
 	}
 }
 
-void hisi_dsi_drm_encoder_mode_set(struct drm_encoder *encoder,
+void dsi_drm_encoder_mode_set(struct drm_encoder *encoder,
 				   struct drm_display_mode *mode,
 				   struct drm_display_mode *adjusted_mode)
 {
-	struct hisi_dsi *dsi = to_hisi_dsi_encoder(encoder);
-	struct hisi_dsi_context *ctx = dsi->ctx;
+	struct hisi_dsi *dsi = encoder_to_dsi(encoder);
+	struct dsi_hw_ctx *ctx = dsi->ctx;
 	struct videomode *vm = &dsi->vm;
 	u32 dphy_freq_kHz;
 
-	vm->flags = 0;
-	vm->hactive = mode->hdisplay;
-	vm->vactive = mode->vdisplay;
-	vm->vfront_porch = mode->vsync_start - mode->vdisplay;
-	vm->vback_porch = mode->vtotal - mode->vsync_end;
-	vm->vsync_len = mode->vsync_end - mode->vsync_start;
-	vm->hfront_porch = mode->hsync_start - mode->hdisplay;
-	vm->hback_porch = mode->htotal - mode->hsync_end;
-	vm->hsync_len = mode->hsync_end - mode->hsync_start;
-
+	drm_display_mode_to_videomode(mode, vm);
 	vm->pixelclock = adjusted_mode->clock;
+
 	ctx->nominal_pixel_clk_kHz = mode->clock;
 	dsi->lanes = 3 + !!(vm->pixelclock >= 115000);
 	dphy_freq_kHz = vm->pixelclock * 24 / dsi->lanes;
 
-	/* avoid a less-compatible DSI rate with 1.2GHz px PLL */
-	if (dphy_freq_kHz == 600000)
-		dphy_freq_kHz = 640000;
-
 	set_dsi_phy_rate_equal_or_faster(&dphy_freq_kHz, &dsi->phy);
-
-	if (mode->flags & DRM_MODE_FLAG_PHSYNC)
-		vm->flags |= DISPLAY_FLAGS_HSYNC_HIGH;
-	else if (mode->flags & DRM_MODE_FLAG_NHSYNC)
-		vm->flags |= DISPLAY_FLAGS_HSYNC_LOW;
-	if (mode->flags & DRM_MODE_FLAG_PVSYNC)
-		vm->flags |= DISPLAY_FLAGS_VSYNC_HIGH;
-	else if (mode->flags & DRM_MODE_FLAG_NVSYNC)
-		vm->flags |= DISPLAY_FLAGS_VSYNC_LOW;
-}
-
-bool
-hisi_dsi_drm_encoder_mode_fixup(struct drm_encoder *encoder,
-				const struct drm_display_mode *mode,
-				struct drm_display_mode *adjusted_mode)
-{
-	bool ret = true;
-
-	return ret;
-}
-
-void hisi_dsi_drm_encoder_destroy(struct drm_encoder *encoder)
-{
-	drm_encoder_cleanup(encoder);
 }
 
 static struct drm_encoder_helper_funcs hisi_encoder_helper_funcs = {
-	.mode_fixup	= hisi_dsi_drm_encoder_mode_fixup,
-	.mode_set	= hisi_dsi_drm_encoder_mode_set,
-	.enable		= hisi_dsi_drm_encoder_enable,
-	.disable	= hisi_dsi_drm_encoder_disable
+	.mode_set	= dsi_drm_encoder_mode_set,
+	.enable		= dsi_drm_encoder_enable,
+	.disable	= dsi_drm_encoder_disable
 };
 
 static struct drm_encoder_funcs hisi_encoder_funcs = {
-	.destroy = hisi_dsi_drm_encoder_destroy
+	.destroy = drm_encoder_cleanup,
 };
 
-void hisi_drm_encoder_init(struct drm_device *dev,
-			   struct drm_encoder *encoder)
+static int hisi_drm_encoder_init(struct drm_device *dev,
+		struct drm_encoder *encoder)
 {
-	encoder->possible_crtcs = 1;
+	int ret;
 
-	drm_encoder_init(dev, encoder, &hisi_encoder_funcs,
+	encoder->possible_crtcs = 1;
+	ret = drm_encoder_init(dev, encoder, &hisi_encoder_funcs,
 			 DRM_MODE_ENCODER_TMDS);
+	if (ret) {
+		DRM_ERROR("failed to init dsi encoder\n");
+		return ret;
+	}
+
 	drm_encoder_helper_add(encoder, &hisi_encoder_helper_funcs);
+
+	return 0;
 }
 
 static int dsi_host_attach(struct mipi_dsi_host *host,
 			   struct mipi_dsi_device *mdsi)
 {
-	struct hisi_dsi *dsi = to_hisi_dsi_host(host);
+	struct hisi_dsi *dsi = host_to_dsi(host);
 
 	if (mdsi->lanes > 4 || mdsi->channel > 3)
 		return -EINVAL;
@@ -673,10 +640,7 @@ static int dsi_host_attach(struct mipi_dsi_host *host,
 static int dsi_host_detach(struct mipi_dsi_host *host,
 			   struct mipi_dsi_device *mdsi)
 {
-	struct hisi_dsi *dsi = to_hisi_dsi_host(host);
-
-	dsi->device_node = NULL;
-
+	/* do nothing */
 	return 0;
 }
 
@@ -685,128 +649,109 @@ static struct mipi_dsi_host_ops dsi_host_ops = {
 	.detach = dsi_host_detach,
 };
 
-static void dsi_mgr_bridge_pre_enable(struct drm_bridge *bridge)
+static int dsi_host_init(struct device *dev, struct hisi_dsi *dsi)
 {
-}
-
-static void dsi_mgr_bridge_enable(struct drm_bridge *bridge)
-{
-}
-
-static void dsi_mgr_bridge_disable(struct drm_bridge *bridge)
-{
-}
-
-static void dsi_mgr_bridge_post_disable(struct drm_bridge *bridge)
-{
-}
-
-static void dsi_mgr_bridge_mode_set(struct drm_bridge *bridge,
-				    struct drm_display_mode *mode,
-				    struct drm_display_mode *adjusted_mode)
-{
-}
-
-static const struct drm_bridge_funcs hisi_dsi_bridge_funcs = {
-	.pre_enable = dsi_mgr_bridge_pre_enable,
-	.enable = dsi_mgr_bridge_enable,
-	.disable = dsi_mgr_bridge_disable,
-	.post_disable = dsi_mgr_bridge_post_disable,
-	.mode_set = dsi_mgr_bridge_mode_set,
-};
-
-static int hisi_dsi_manager_bridge_init(struct drm_device *dev,
-					struct hisi_dsi *dsi)
-{
-	struct drm_bridge *int_bridge = &dsi->bridge;
-	struct drm_bridge *ext_bridge;
-	struct drm_encoder *encoder = &dsi->encoder;
 	struct mipi_dsi_host *host = &dsi->host;
 	int ret;
 
-	if (!dsi->registered) {
-		host->dev = &dsi->pdev->dev;
-		host->ops = &dsi_host_ops;
-		ret = mipi_dsi_host_register(host);
-		if (ret)
-			return ret;
-
-		dsi->registered = true;
-
-	if (dsi->device_node) {
-		if (!of_drm_find_bridge(dsi->device_node))
-			return -EPROBE_DEFER;
-		}
-	}
-
-	int_bridge->funcs = &hisi_dsi_bridge_funcs;
-	ret = drm_bridge_attach(dev, int_bridge);
+	host->dev = dev;
+	host->ops = &dsi_host_ops;
+	ret = mipi_dsi_host_register(host);
 	if (ret) {
-		DRM_ERROR("failed to drm bridge attach\n");
+		DRM_ERROR("failed to register dsi host\n");
 		return ret;
 	}
-
-	encoder->bridge = int_bridge;
-
-	ext_bridge = of_drm_find_bridge(dsi->device_node);
-	if (!ext_bridge) {
-		DRM_ERROR("failed to find drm bridge\n");
-		return ret;
-	}
-
-	/* link the internal dsi bridge to the external bridge */
-	int_bridge->next = ext_bridge;
-	/* set the external bridge's encoder as dsi's encoder */
-	ext_bridge->encoder = encoder;
-
-	drm_bridge_attach(dev, ext_bridge);
 
 	return 0;
 }
 
-static int hisi_dsi_bind(struct device *dev, struct device *master,
-			 void *data)
+static int dsi_bridge_init(struct drm_device *dev, struct hisi_dsi *dsi)
 {
-	struct hisi_dsi_context *ctx = dev_get_drvdata(dev);
-	int ret = 0;
+	struct drm_encoder *encoder = &dsi->encoder;
+	struct drm_bridge *bridge = dsi->bridge;
+	int ret;
 
-	ctx->dev = data;
+	/* associate the bridge to dsi encoder */
+	encoder->bridge = bridge;
+	bridge->encoder = encoder;
 
-	hisi_drm_encoder_init(ctx->dev, &ctx->dsi.encoder);
-
-	ret = hisi_dsi_manager_bridge_init(ctx->dev, &ctx->dsi);
+	ret = drm_bridge_attach(dev, bridge);
 	if (ret) {
-		DRM_ERROR("failed to dsi manager bridge init\n");
+		DRM_ERROR("failed to attach exteranl bridge\n");
 		return ret;
 	}
 
-	return ret;
+	return 0;
 }
 
-static void hisi_dsi_unbind(struct device *dev, struct device *master,
+static int dsi_bind(struct device *dev, struct device *master,
+			 void *data)
+{
+	struct dsi_data *ddata = dev_get_drvdata(dev);
+	struct hisi_dsi *dsi = &ddata->dsi;
+	struct drm_device *drm_dev = data;
+	int ret;
+
+	ret = hisi_drm_encoder_init(drm_dev, &dsi->encoder);
+	if (ret)
+		return ret;
+
+	ret = dsi_host_init(dev, dsi);
+	if (ret)
+		return ret;
+
+	ret = dsi_bridge_init(drm_dev, dsi);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+static void dsi_unbind(struct device *dev, struct device *master,
 			    void *data)
 {
 	/* do nothing */
 }
 
-static const struct component_ops hisi_dsi_ops = {
-	.bind	= hisi_dsi_bind,
-	.unbind	= hisi_dsi_unbind,
+static const struct component_ops dsi_ops = {
+	.bind	= dsi_bind,
+	.unbind	= dsi_unbind,
 };
 
-static int hisi_dsi_probe(struct platform_device *pdev)
+static int dsi_parse_dt(struct platform_device *pdev, struct dsi_data *data)
 {
-	struct hisi_dsi *dsi;
-	struct hisi_dsi_context *ctx;
-	struct resource *res;
-	struct device_node *endpoint, *device_node;
+	struct hisi_dsi *dsi = &data->dsi;
+	struct dsi_hw_ctx *ctx = &data->ctx;
 	struct device_node *np = pdev->dev.of_node;
+	struct device_node *endpoint, *bridge_node;
+	struct drm_bridge *bridge;
+	struct resource *res;
 	int ret;
 
-	ctx = devm_kzalloc(&pdev->dev, sizeof(*ctx), GFP_KERNEL);
-	if (!ctx) {
-		DRM_ERROR("failed to allocate hisi dsi context.\n");
-		ret = -ENOMEM;
+	/*
+	 * Get the first endpoint node. In our case, dsi has one output port
+	 * to which the external HDMI bridge is connected.
+	 */
+	endpoint = of_graph_get_next_endpoint(np, NULL);
+	if (!endpoint) {
+		DRM_ERROR("no valid endpoint node\n");
+		return -ENODEV;
+	}
+
+	bridge_node = of_graph_get_remote_port_parent(endpoint);
+	if (!bridge_node) {
+		DRM_ERROR("no valid bridge node\n");
+		of_node_put(endpoint);
+		return -ENODEV;
+	}
+
+	of_node_put(endpoint);
+	of_node_put(bridge_node);
+
+	bridge = of_drm_find_bridge(bridge_node);
+	if (!bridge) {
+		DRM_INFO("wait for external HDMI bridge driver.\n");
+		return -EPROBE_DEFER;
 	}
 
 	ctx->dsi_cfg_clk = devm_clk_get(&pdev->dev, "pclk_dsi");
@@ -822,68 +767,63 @@ static int hisi_dsi_probe(struct platform_device *pdev)
 		ret = PTR_ERR(ctx->base);
 	}
 
-	/*
-	 * Get the first endpoint node. In our case, dsi has one output port
-	 * to which the panel is connected. Don't return an error if a port
-	 * isn't defined. It's possible that there is nothing connected to
-	 * the dsi output.
-	 */
-	endpoint = of_graph_get_next_endpoint(np, NULL);
-	if (!endpoint) {
-		dev_err(&pdev->dev, "%s: no endpoint\n", __func__);
-		return 0;
-	}
-
-	/* Get panel node from the output port's endpoint data */
-	device_node = of_graph_get_remote_port_parent(endpoint);
-	if (!device_node) {
-		dev_err(&pdev->dev, "%s: no valid device\n", __func__);
-		of_node_put(endpoint);
-		return -ENODEV;
-	}
-
-	of_node_put(endpoint);
-	of_node_put(device_node);
-
-	dsi = &ctx->dsi;
-	dsi->pdev = pdev;
-	dsi->device_node = device_node;
-	dsi->ctx = ctx;
-	dsi->lanes = 3;
-	dsi->date_enable_pol = 0;
-	dsi->color_mode = DSI_24BITS_1;
-	dsi->format = MIPI_DSI_FMT_RGB888;
-	dsi->mode_flags = MIPI_DSI_MODE_VIDEO | MIPI_DSI_MODE_VIDEO_SYNC_PULSE;
-
-	platform_set_drvdata(pdev, ctx);
-
-	return component_add(&pdev->dev, &hisi_dsi_ops);
-}
-
-static int hisi_dsi_remove(struct platform_device *pdev)
-{
-	component_del(&pdev->dev, &hisi_dsi_ops);
+	dsi->bridge = bridge;
 
 	return 0;
 }
 
-static const struct of_device_id hisi_dsi_of_match[] = {
+static int dsi_probe(struct platform_device *pdev)
+{
+	struct dsi_data *data;
+	struct hisi_dsi *dsi;
+	struct dsi_hw_ctx *ctx;
+	int ret;
+
+	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
+	if (!data) {
+		DRM_ERROR("failed to allocate hisi dsi context.\n");
+		ret = -ENOMEM;
+	}
+	dsi = &data->dsi;
+	ctx = &data->ctx;
+
+	ret = dsi_parse_dt(pdev, data);
+	if (ret)
+		return ret;
+
+	dsi->ctx = ctx;
+	dsi->date_enable_pol = 0;
+	dsi->color_mode = DSI_24BITS_1;
+
+	platform_set_drvdata(pdev, data);
+
+	return component_add(&pdev->dev, &dsi_ops);
+}
+
+static int dsi_remove(struct platform_device *pdev)
+{
+	component_del(&pdev->dev, &dsi_ops);
+
+	return 0;
+}
+
+static const struct of_device_id dsi_of_match[] = {
 	{.compatible = "hisilicon,hi6220-dsi"},
 	{ }
 };
-MODULE_DEVICE_TABLE(of, hisi_dsi_of_match);
+MODULE_DEVICE_TABLE(of, dsi_of_match);
 
-static struct platform_driver hisi_dsi_driver = {
-	.probe = hisi_dsi_probe,
-	.remove = hisi_dsi_remove,
+static struct platform_driver dsi_driver = {
+	.probe = dsi_probe,
+	.remove = dsi_remove,
 	.driver = {
 		.name = "hisi-dsi",
 		.owner = THIS_MODULE,
-		.of_match_table = hisi_dsi_of_match,
+		.of_match_table = dsi_of_match,
 	},
 };
 
-module_platform_driver(hisi_dsi_driver);
+module_platform_driver(dsi_driver);
 
 MODULE_AUTHOR("Xinwei Kong <kong.kongxinwei@hisilicon.com>");
 MODULE_AUTHOR("Xinliang Liu <z.liuxinliang@huawei.com>");
