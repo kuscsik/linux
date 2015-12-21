@@ -12,6 +12,7 @@
 #include <linux/module.h>
 #include <linux/regmap.h>
 #include <linux/slab.h>
+#include <video/videomode.h>
 
 #include <drm/drmP.h>
 #include <drm/drm_crtc_helper.h>
@@ -23,6 +24,7 @@
 #include <linux/of_irq.h>
 
 #include "adv7511.h"
+#include "../hisilicon/hisi_drm_dsi.h"
 
 /* uncomment to enable Internal Timing Generator + DE */
 //#define ITG
@@ -372,6 +374,7 @@ static void adv7511_set_link_config(struct adv7511 *adv7511,
 	adv7511->vsync_polarity = config->vsync_polarity;
 }
 
+#ifdef ITG
 static void adv7511_dsi_config_tgen(struct adv7511 *adv7511)
 {
 	struct drm_display_mode *mode = &adv7511->curr_mode;
@@ -448,11 +451,10 @@ static void adv7511_dsi_config_tgen(struct adv7511 *adv7511)
 					    (vsw >> 8));
 	regmap_write(adv7511->regmap, 0xdb, vsw);
 
-#ifdef ITG
 	regmap_update_bits(adv7511->regmap, 0x17, BIT(0), BIT(0));
 	regmap_update_bits(adv7511->regmap, ADV7511_REG_POWER, BIT(1), BIT(1));
-#endif
 }
+#endif
 
 static void adv7511_dsi_receiver_dpms(struct adv7511 *adv7511)
 {
@@ -460,9 +462,9 @@ static void adv7511_dsi_receiver_dpms(struct adv7511 *adv7511)
 		return;
 
 	if (adv7511->powered) {
-		adv7511_dsi_config_tgen(adv7511);
 
 #ifdef ITG
+		adv7511_dsi_config_tgen(adv7511);
 		/* reset internal timing generator */
 		regmap_write(adv7511->regmap_cec, 0x27, 0xcb);
 		regmap_write(adv7511->regmap_cec, 0x27, 0x8b);
@@ -471,7 +473,6 @@ static void adv7511_dsi_receiver_dpms(struct adv7511 *adv7511)
 		/* disable internal timing generator */
 		regmap_write(adv7511->regmap_cec, 0x27, 0x0b);
 #endif
-
 		/* enable hdmi */
 		regmap_write(adv7511->regmap_cec, 0x03, 0x89);
 
@@ -479,6 +480,7 @@ static void adv7511_dsi_receiver_dpms(struct adv7511 *adv7511)
 		regmap_write(adv7511->regmap_cec, 0x55, 0x00);
 		/* deassert DSI reset */
 		regmap_update_bits(adv7511->regmap, 0x26, BIT(5), 0);
+		regmap_update_bits(adv7511->regmap, 0x26, BIT(5), BIT(5));
 		/* Black OFF */
 		regmap_write(adv7511->regmap, 0xd5, 0);
 	} else {
@@ -557,7 +559,10 @@ static bool adv7511_hpd(struct adv7511 *adv7511)
 
 static int adv7511_irq_process(struct adv7511 *adv7511)
 {
-	unsigned int irq0, irq1;
+	unsigned int irq0, irq1, state;
+	struct drm_encoder *encoder = adv7511->encoder;
+	struct hisi_dsi *dsi;
+	bool powered = adv7511->powered;
 	int ret;
 
 	ret = regmap_read(adv7511->regmap, ADV7511_REG_INT(0), &irq0);
@@ -568,17 +573,34 @@ static int adv7511_irq_process(struct adv7511 *adv7511)
 	if (ret < 0)
 		return ret;
 
-	regmap_write(adv7511->regmap, ADV7511_REG_INT(0), irq0);
-	regmap_write(adv7511->regmap, ADV7511_REG_INT(1), irq1);
-
-	if (adv7511->encoder && (irq0 & ADV7511_INT0_HDP))
-		drm_helper_hpd_irq_event(adv7511->encoder->dev);
+	if (encoder && (irq0 & ADV7511_INT0_HDP))
+		drm_helper_hpd_irq_event(encoder->dev);
 
 	if (irq0 & ADV7511_INT0_EDID_READY || irq1 & ADV7511_INT1_DDC_ERROR) {
 		adv7511->edid_read = true;
 
 		if (adv7511->irq)
 			wake_up_all(&adv7511->wq);
+	}
+
+	/*
+	 * reset dsi TX when transfer error
+	 */
+	ret = regmap_read(adv7511->regmap_cec, 0x48, &state);
+	if (ret < 0)
+		return ret;
+	if (powered && (!irq1 || state & BIT(2))) {
+		DRM_INFO("dsi RX error detect cecdsi: 0x48(0x%02x), irq0(0x%02x), irq1(0x%02x)\n", 
+				state, irq0, irq1);
+		/* mask dsi interrupt, only reset once */
+		regmap_update_bits(adv7511->regmap_cec, 0x38, BIT(4), 0);
+
+		/* toggle to clear RX interrupt state */
+		regmap_update_bits(adv7511->regmap_cec, 0x38, BIT(1), BIT(1));
+		regmap_update_bits(adv7511->regmap_cec, 0x38, BIT(1), 0);
+
+		dsi = encoder_to_dsi(encoder);
+		dsi->reset(encoder);
 	}
 
 	return 0;
@@ -683,10 +705,6 @@ static int adv7511_get_modes(struct adv7511 *adv7511,
 	if (!adv7511->powered) {
 		regmap_update_bits(adv7511->regmap, ADV7511_REG_POWER2,
 				   ADV7511_REG_POWER2_HDP_SRC_MASK, 0x40);
-		regmap_write(adv7511->regmap, ADV7511_REG_INT(0),
-			     ADV7511_INT0_EDID_READY);
-		regmap_write(adv7511->regmap, ADV7511_REG_INT(1),
-			     ADV7511_INT1_DDC_ERROR);
 		regmap_update_bits(adv7511->regmap, ADV7511_REG_POWER,
 				   ADV7511_POWER_POWER_DOWN, 0);
 		adv7511->current_edid_segment = -1;
@@ -1274,6 +1292,11 @@ static int adv7511_probe(struct i2c_client *i2c, const struct i2c_device_id *id)
 
 	if (i2c->irq) {
 		init_waitqueue_head(&adv7511->wq);
+
+		/* mask non-dsi interrupts */
+		regmap_write(adv7511->regmap, 0x94, 0);
+		/* enable DSI RX interrupts */
+		regmap_update_bits(adv7511->regmap_cec, 0x38, BIT(4), BIT(4));
 
 		ret = devm_request_threaded_irq(dev, i2c->irq, NULL,
 						adv7511_irq_handler,
