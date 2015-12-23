@@ -482,8 +482,9 @@ static int hisi_drm_crtc_mode_set_base(struct drm_crtc *crtc, int x, int y,
 	writel(ADE_ENABLE, ade_base + ADE_EN_REG);
 	//set_TOP_CTL_frm_end_start(ade_base, 1);
 	set_LDI_CTRL_ldi_en(ade_base, ADE_ENABLE);
-	if (wait_event_interruptible_timeout(crtc_ade->wait_res_cmpl, crtc_ade->res_switch_cmpl, HZ/4) <= 0) {
-		DRM_INFO("wait_event_interruptible_timeout wait_res_cmpl timeout!\n");
+	if (wait_event_interruptible_timeout(crtc_ade->wait_res_cmpl,
+				crtc_ade->res_switch_cmpl, HZ/4) <= 0) {
+		DRM_DEBUG_DRIVER("wait_res_cmpl timeout!\n");
 		writel(0, ade_base + ADE_SOFT_RST_SEL0_REG);
 		writel(0, ade_base + ADE_SOFT_RST_SEL1_REG);
 		writel(0xffffffff, ade_base + ADE_SOFT_RST0_REG);
@@ -627,7 +628,7 @@ static irqreturn_t ade_irq_handler(int irq, void *data)
 	/* check DMA error */
 	if ((status0 & ADE_ISR_DMA_ERROR) == ADE_ISR_DMA_ERROR) {
 		writel(ADE_ISR_DMA_ERROR, base + INTR_CLEAR_CPU_0_REG);
-		DRM_INFO("DMA error check irq\n");
+		DRM_DEBUG_DRIVER("DMA error check irq\n");
 	}
 
 	if ((status1 & ADE_ISR1_RES_SWITCH_CMPL) == ADE_ISR1_RES_SWITCH_CMPL) {
@@ -660,7 +661,7 @@ static irqreturn_t ldi_irq_handler(int irq, void *data)
 
 	if (status & LDI_ISR_UNDER_FLOW_INT) {
 		writel(LDI_ISR_UNDER_FLOW_INT, base + LDI_INT_CLR_REG);
-		DRM_INFO("underflow irq\n");
+		DRM_DEBUG_DRIVER("underflow irq\n");
 	}
 
 	return IRQ_HANDLED;
@@ -713,14 +714,14 @@ static int hisi_ade_probe(struct platform_device *pdev)
 	}
 
 	/* ade irq init */
-	ret = devm_request_irq(&pdev->dev, ade_irq, ade_irq_handler, DRIVER_IRQ_SHARED,
-			  "ade irq", crtc_ade);
+	ret = devm_request_irq(&pdev->dev, ade_irq, ade_irq_handler,
+			DRIVER_IRQ_SHARED, "ade irq", crtc_ade);
 	if (ret)
 		return ret;
 
 	/* ldi irq init */
-	ret = devm_request_irq(&pdev->dev, ldi_irq, ldi_irq_handler, DRIVER_IRQ_SHARED,
-			  "ldi irq", crtc_ade);
+	ret = devm_request_irq(&pdev->dev, ldi_irq, ldi_irq_handler,
+			DRIVER_IRQ_SHARED, "ldi irq", crtc_ade);
 	if (ret)
 		return ret;
 
