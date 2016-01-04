@@ -73,11 +73,27 @@
 			enable-active-high;
 		};
 
-		i2c2: i2c@f7102000 {
+		ade: ade@f4100000 {
 			status = "ok";
+		};
 
+		dsi: dsi@0xf4107800 {
+			 status = "ok";
+
+			 ports {
+				port@1 {
+					dsi_out: endpoint {
+						remote-endpoint = <&adv7533_in>;
+					};
+				};
+			};
+		};
+
+		i2c2: i2c@f7102000 {
 			#address-cells = <0x1>;
 			#size-cells = <0x0>;
+			status = "ok";
+
 			adv7533: adv7533@39 {
 				compatible = "adi,adv7533";
 				reg = <0x39>;
@@ -87,7 +103,7 @@
 				adi,dsi-lanes = <4>;
 
 				port {
-					adv_in: endpoint {
+					adv7533_in: endpoint {
 						remote-endpoint = <&dsi_out>;
 					};
 				};
