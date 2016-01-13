@@ -162,7 +162,7 @@ static int hisi_drm_gem_cma_dumb_create(struct drm_file *file,
 	/* FIXME: let need pitch 8 bytes alignment? */
 	args->pitch = roundup(min_pitch, 8);
 
-	return drm_gem_cma_dumb_create(file, dev, args);
+	return drm_gem_cma_dumb_create_internal(file, dev, args);
 }
 
 static struct drm_driver hisi_drm_driver = {
