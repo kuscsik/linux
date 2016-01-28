@@ -101,6 +101,7 @@
 };
 &uart3 {
 	label = "LS-UART1";
+};
 
 &pmic {
 	status = "okay";
