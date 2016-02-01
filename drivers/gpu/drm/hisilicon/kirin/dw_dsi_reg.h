@@ -32,6 +32,24 @@
 #define  VID_VBP_LINES           0x58  /* Vertical Back Porch period */
 #define  VID_VFP_LINES           0x5C  /* Vertical Front Porch period */
 #define  VID_VACTIVE_LINES       0x60  /* Vertical resolution */
+
+#define GEN_HDR				0x6c
+#define GEN_HDATA(data)			(((data) & 0xffff) << 8)
+#define GEN_HDATA_MASK			(0xffff << 8)
+#define GEN_HTYPE(type)			(((type) & 0xff) << 0)
+#define GEN_HTYPE_MASK			0xff
+
+#define GEN_PLD_DATA			0x70
+
+#define CMD_PKT_STATUS		0x74
+#define GEN_CMD_EMPTY			BIT(0)
+#define GEN_CMD_FULL			BIT(1)
+#define GEN_PLD_W_EMPTY			BIT(2)
+#define GEN_PLD_W_FULL			BIT(3)
+#define GEN_PLD_R_EMPTY			BIT(4)
+#define GEN_PLD_R_FULL			BIT(5)
+#define GEN_RD_CMD_BUSY			BIT(6)
+
 #define  VID_PKT_SIZE            0x3C  /* Video packet size */
 #define  VID_MODE_CFG            0x38  /* Video mode configuration */
 #define  DPI_LP_CMD_TIM          0x18  /* Low-power command timing config */
@@ -46,6 +64,7 @@
 #define  PHY_STATUS              0xB0  /* D-PHY PPI status interface */
 
 #define	PHY_STOP_WAIT_TIME       0x30
+#define CMD_PKT_STATUS_TIMEOUT_US	20000
 
 /*
  * regs relevant enum
