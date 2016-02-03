@@ -765,16 +765,10 @@
 				#address-cells = <1>;
 				#size-cells = <0>;
 
-				port@0 {
+				port@0 { /* 0 for input port */
 					reg = <0>;
 					dsi_in: endpoint {
 							remote-endpoint = <&ade_out>;
-					};
-				};
-
-				port@1 {
-					reg = <1>; /* 1 for output port */
-					dsi_out: endpoint {
 					};
 				};
 			};
