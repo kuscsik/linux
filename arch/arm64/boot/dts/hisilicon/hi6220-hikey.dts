@@ -91,19 +91,14 @@
 };
 
 &dsi {
-	mux-gpio = <&gpio0 1 0>;
 	status = "ok";
 
 	ports {
-		 /* 1 for output port */
+		/* 1 for output port */
 		port@1 {
-			#address-cells = <1>;
-			#size-cells = <0>;
 			reg = <1>;
 
-			/* 0 for bridge, other value for panel */
 			dsi_out0: endpoint@0 {
-				reg = <0>;
 				remote-endpoint = <&adv7533_in>;
 			};
 		};

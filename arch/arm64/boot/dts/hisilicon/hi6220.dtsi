@@ -213,6 +213,11 @@
 			#clock-cells = <1>;
 		};
 
+		medianoc_ade: medianoc_ade@f4520000 {
+			compatible = "syscon";
+			reg = <0x0 0xf4520000 0x0 0x4000>;
+		};
+
 		stub_clock: stub_clock {
 			compatible = "hisilicon,hi6220-stub-clk";
 			hisilicon,hi6220-clk-sram = <&sram>;
@@ -726,13 +731,10 @@
 
 		ade: ade@f4100000 {
 			compatible = "hisilicon,hi6220-ade";
-			reg = <0x0 0xf4100000 0x0 0x7800>,
-			      <0x0 0xf4410000 0x0 0x1000>,
-			      <0x0 0xf4520000 0x0 0x1000>;
-			reg-names = "ade_base",
-				    "media_base",
-				    "media_noc_base";
-
+			reg = <0x0 0xf4100000 0x0 0x7800>;
+			reg-names = "ade_base";
+			hisilicon,noc-syscon = <&medianoc_ade>;
+			resets = <&media_ctrl MEDIA_ADE>;
 			interrupts = <0 115 4>; /* ldi interrupt */
 
 			clocks = <&media_ctrl HI6220_ADE_CORE>,
@@ -756,11 +758,11 @@
 			};
 		};
 
-		dsi: dsi@0xf4107800 {
+		dsi: dsi@f4107800 {
 			compatible = "hisilicon,hi6220-dsi";
 			reg = <0x0 0xf4107800 0x0 0x100>;
 			clocks = <&media_ctrl  HI6220_DSI_PCLK>;
-			clock-names = "pclk_dsi";
+			clock-names = "pclk";
 			status = "disabled";
 
 			ports {
