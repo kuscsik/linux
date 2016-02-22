@@ -342,6 +342,8 @@ static int kirin_drm_platform_probe(struct platform_device *pdev)
 	struct device_node *remote;
 	int ret;
 
+	drm_debug = DRM_UT_DRIVER | DRM_UT_KMS | DRM_UT_ATOMIC;
+
 	ret = kirin_get_dc_ops(np);
 	if (ret)
 		return ret;
