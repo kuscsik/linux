@@ -91,7 +91,8 @@
 };
 
 &dsi {
-	mux-gpio = <&gpio0 1 0>;
+	#address-cells = <1>;
+	#size-cells = <0>;
 	status = "ok";
 
 	ports {
@@ -103,6 +104,33 @@
 			dsi_out0: endpoint@0 {
 				reg = <0>;
 				remote-endpoint = <&adv7533_in>;
+			};
+
+			dsi_out1: endpoint@1 {
+				reg = <1>;
+				remote-endpoint = <&panel0_in>;
+			};
+		};
+	};
+
+	panel@0 {
+		compatible = "innolux,n070icn-pb1";
+		reg = <0>;
+		power-on-delay= <50>;
+		reset-delay = <100>;
+		init-delay = <100>;
+		#flip-horizontal;
+		#flip-vertical;
+		panel-width-mm = <58>;
+		panel-height-mm = <103>;
+		mipisw-gpio = <&gpio0 1 0>;
+		pwr-en-gpio = <&gpio2 1 0>;
+		bl-en-gpio = <&gpio2 3 0>;
+		pwm-gpio = <&gpio12 7 0>;
+
+		port {
+			panel0_in: endpoint {
+				remote-endpoint = <&dsi_out1>;
 			};
 		};
 	};
