@@ -363,10 +363,18 @@ static void ade_display_enable(struct ade_crtc *acrtc)
 
 	/* enable ade */
 	writel(ADE_ENABLE, base + ADE_EN);
+
 	/* enable ldi */
+#define ENABLE_TEST_MODE 0
+#if ENABLE_TEST_MODE
+	writel(BIT(2) | TEST_MODE, base + LDI_WORK_MODE);
+	writel((0x3c << 6) | (out_fmt << BPP_OFST) | DATA_GATE_EN | LDI_EN,
+	       base + LDI_CTRL);
+#else
 	writel(NORMAL_MODE, base + LDI_WORK_MODE);
 	writel((out_fmt << BPP_OFST) | DATA_GATE_EN | LDI_EN,
 	       base + LDI_CTRL);
+#endif
 	/* dsi pixel on */
 	writel(DSI_PCLK_ON, base + LDI_HDMI_DSI_GT);
 }
