@@ -93,6 +93,7 @@
 &dsi {
 	#address-cells = <1>;
 	#size-cells = <0>;
+	mux-gpio = <&gpio0 1 0>;
 	status = "ok";
 
 	ports {
@@ -113,9 +114,10 @@
 		};
 	};
 
-	panel@0 {
+	/* For panel reg's value should >= 1 */
+	panel@1 {
 		compatible = "innolux,n070icn-pb1";
-		reg = <0>;
+		reg = <1>;
 		power-on-delay= <50>;
 		reset-delay = <100>;
 		init-delay = <100>;
@@ -123,7 +125,6 @@
 		#flip-vertical;
 		panel-width-mm = <58>;
 		panel-height-mm = <103>;
-		mipisw-gpio = <&gpio0 1 0>;
 		pwr-en-gpio = <&gpio2 1 0>;
 		bl-en-gpio = <&gpio2 3 0>;
 		pwm-gpio = <&gpio12 7 0>;
