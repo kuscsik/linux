@@ -304,6 +304,8 @@ static void __save_error_info(struct super_block *sb, const char *func,
 	struct ext4_super_block *es = EXT4_SB(sb)->s_es;
 
 	EXT4_SB(sb)->s_mount_state |= EXT4_ERROR_FS;
+	if (bdev_read_only(sb->s_bdev))
+		return;
 	es->s_state |= cpu_to_le16(EXT4_ERROR_FS);
 	es->s_last_error_time = cpu_to_le32(get_seconds());
 	strncpy(es->s_last_error_func, func, sizeof(es->s_last_error_func));
@@ -368,6 +370,48 @@ static void ext4_journal_commit_callback(journal_t *journal, transaction_t *txn)
 	spin_unlock(&sbi->s_md_lock);
 }
 
+static void ext4_error_uevent(struct super_block *sb)
+{
+	int i;
+	int ret;
+	char *argv[2];
+	char *envp[4];
+	char *pbuf;
+	char *buf;
+	int buflen = 1024;
+
+	pbuf = buf = kmalloc(buflen + 1, GFP_KERNEL);
+	if (!buf) {
+		printk(KERN_ERR "EXT4-fs error (device %s): Out of memory.\n", sb->s_id);
+		return;
+	}
+
+	i = 0;
+	argv[i++] = "/etc/restore";
+	argv[i] = NULL;
+
+	i = 0;
+	envp[i++] = "PATH=/sbin:/bin:/usr/sbin:/usr/bin:/system/bin:";
+
+	ret = snprintf(pbuf, buflen, "DEVICE=%s", sb->s_id) + 1;
+	envp[i++] = pbuf;
+	pbuf += ret;
+	buflen -= ret;
+
+	ret = snprintf(pbuf, buflen, "FS=ext4") + 1;
+	envp[i++] = pbuf;
+	pbuf += ret;
+	buflen -= ret;
+
+	envp[i] = NULL;
+
+	ret = call_usermodehelper(argv[0], argv, envp, UMH_WAIT_EXEC);
+	if (ret)
+		ext4_msg(sb, KERN_CRIT, "Run /etc/restore restore ext4 failed. errno:%d\n", ret);
+
+	kfree(buf);
+}
+
 /* Deal with the reporting of failure conditions on a filesystem such as
  * inconsistencies detected or read IO failures.
  *
@@ -403,6 +447,7 @@ static void ext4_handle_error(struct super_block *sb)
 		 */
 		smp_wmb();
 		sb->s_flags |= MS_RDONLY;
+		ext4_error_uevent(sb);
 	}
 	if (test_opt(sb, ERRORS_PANIC))
 		panic("EXT4-fs (device %s): panic forced after error\n",
@@ -594,6 +639,7 @@ void __ext4_abort(struct super_block *sb, const char *function,
 		if (EXT4_SB(sb)->s_journal)
 			jbd2_journal_abort(EXT4_SB(sb)->s_journal, -EIO);
 		save_error_info(sb, function, line);
+		ext4_error_uevent(sb);
 	}
 	if (test_opt(sb, ERRORS_PANIC))
 		panic("EXT4-fs panic from previous error\n");

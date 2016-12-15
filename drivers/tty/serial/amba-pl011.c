@@ -93,7 +93,7 @@ static struct vendor_data vendor_arm = {
 	.lcrh_rx		= UART011_LCRH,
 	.oversampling		= false,
 	.dma_threshold		= false,
-	.cts_event_workaround	= false,
+	.cts_event_workaround	= true,
 	.get_fifosize		= get_fifosize_arm,
 };
 

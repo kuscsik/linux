@@ -1,0 +1,2 @@
+test-libbfd.c:1:17: fatal error: bfd.h: No such file or directory
+compilation terminated.

@@ -32,6 +32,9 @@ enum rc_type {
 	RC_TYPE_RC6_MCE		= 17,	/* MCE (Philips RC6-6A-32 subtype) protocol */
 	RC_TYPE_SHARP		= 18,	/* Sharp protocol */
 	RC_TYPE_XMP		= 19,	/* XMP protocol */
+	RC_TYPE_NEC_2HDR_40BIT  = 20,
+	RC_TYPE_NEC_FULL_40BIT  = 21,
+	RC_TYPE_NEC_FULL_48BIT  = 22,
 };
 
 #define RC_BIT_NONE		0
@@ -55,6 +58,10 @@ enum rc_type {
 #define RC_BIT_RC6_MCE		(1 << RC_TYPE_RC6_MCE)
 #define RC_BIT_SHARP		(1 << RC_TYPE_SHARP)
 #define RC_BIT_XMP		(1 << RC_TYPE_XMP)
+#define RC_BIT_NEC_2HDR_40BIT   (1 << RC_TYPE_NEC_2HDR_40BIT)
+#define RC_BIT_NEC_FULL_40BIT   (1 << RC_TYPE_NEC_FULL_40BIT)
+#define RC_BIT_NEC_FULL_48BIT   (1 << RC_TYPE_NEC_FULL_48BIT)
+
 
 #define RC_BIT_ALL	(RC_BIT_UNKNOWN | RC_BIT_OTHER | RC_BIT_LIRC | \
 			 RC_BIT_RC5 | RC_BIT_RC5X | RC_BIT_RC5_SZ | \

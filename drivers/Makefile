@@ -117,6 +117,7 @@ obj-$(CONFIG_CPU_IDLE)		+= cpuidle/
 obj-y				+= mmc/
 obj-$(CONFIG_MEMSTICK)		+= memstick/
 obj-y				+= leds/
+obj-$(CONFIG_SWITCH)		+= switch/
 obj-$(CONFIG_INFINIBAND)	+= infiniband/
 obj-$(CONFIG_SGI_SN)		+= sn/
 obj-y				+= firmware/
@@ -161,3 +162,14 @@ obj-$(CONFIG_POWERCAP)		+= powercap/
 obj-$(CONFIG_MCB)		+= mcb/
 obj-$(CONFIG_RAS)		+= ras/
 obj-$(CONFIG_THUNDERBOLT)	+= thunderbolt/
+obj-$(CONFIG_CORESIGHT)		+= hwtracing/coresight/
+obj-y				+= hisilicon/
+
+ifeq ($(CONFIG_MSP),y)
+obj-y += common/
+obj-y += msp/
+endif
+
+ifeq ($(HI_CONFIG_WIFI),y)
+obj-y += wifi/
+endif

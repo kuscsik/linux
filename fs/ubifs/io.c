@@ -72,7 +72,47 @@
 
 #include <linux/crc32.h>
 #include <linux/slab.h>
+#include <linux/kmod.h>
 #include "ubifs.h"
+
+static void ubifs_error_uevent(struct ubifs_info *c)
+{
+	int i;
+	int ret;
+	char *argv[2];
+	char *envp[4];
+	char *pbuf;
+	char *buf;
+	int buflen = 1024;
+
+	ubifs_msg(c, "Error - UBI device %d, volume %d, name \"%s\"",
+		c->vi.ubi_num, c->vi.vol_id, c->vi.name);
+	pbuf = buf = kmalloc(buflen + 1, GFP_KERNEL);
+	if (!buf) {
+		ubifs_err(c, "Out of memory.\n");
+		return;
+	}
+	i = 0;
+	argv[i++] = "/etc/restore";
+	argv[i] = NULL;
+	i = 0;
+	envp[i++] = "PATH=/sbin:/bin:/usr/sbin:/usr/bin:/system/bin:";
+	ret = snprintf(pbuf, buflen, "DEVICE=%s", c->vi.name) + 1;
+	envp[i++] = pbuf;
+	pbuf += ret;
+	buflen -= ret;
+
+	ret = snprintf(pbuf, buflen, "FS=ubifs") + 1;
+	envp[i++] = pbuf;
+	pbuf += ret;
+	buflen -= ret;
+
+	envp[i] = NULL;
+	ret = call_usermodehelper(argv[0], argv, envp, UMH_WAIT_EXEC);
+	if (ret)
+		ubifs_err(c, "Run /etc/restore restore ubifs failed. errno:%d\n", ret);
+	kfree(buf);
+}
 
 /**
  * ubifs_ro_mode - switch UBIFS to read read-only mode.
@@ -85,8 +125,9 @@ void ubifs_ro_mode(struct ubifs_info *c, int err)
 		c->ro_error = 1;
 		c->no_chk_data_crc = 0;
 		c->vfs_sb->s_flags |= MS_RDONLY;
-		ubifs_warn("switched to read-only mode, error %d", err);
+		ubifs_warn(c, "switched to read-only mode, error %d", err);
 		dump_stack();
+		ubifs_error_uevent(c);
 	}
 }
 
@@ -107,7 +148,7 @@ int ubifs_leb_read(const struct ubifs_info *c, int lnum, void *buf, int offs,
 	 * @even_ebadmsg is true.
 	 */
 	if (err && (err != -EBADMSG || even_ebadmsg)) {
-		ubifs_err("reading %d bytes from LEB %d:%d failed, error %d",
+		ubifs_err(c, "reading %d bytes from LEB %d:%d failed, error %d",
 			  len, lnum, offs, err);
 		dump_stack();
 	}
@@ -127,7 +168,7 @@ int ubifs_leb_write(struct ubifs_info *c, int lnum, const void *buf, int offs,
 	else
 		err = dbg_leb_write(c, lnum, buf, offs, len);
 	if (err) {
-		ubifs_err("writing %d bytes to LEB %d:%d failed, error %d",
+		ubifs_err(c, "writing %d bytes to LEB %d:%d failed, error %d",
 			  len, lnum, offs, err);
 		ubifs_ro_mode(c, err);
 		dump_stack();
@@ -147,7 +188,7 @@ int ubifs_leb_change(struct ubifs_info *c, int lnum, const void *buf, int len)
 	else
 		err = dbg_leb_change(c, lnum, buf, len);
 	if (err) {
-		ubifs_err("changing %d bytes in LEB %d failed, error %d",
+		ubifs_err(c, "changing %d bytes in LEB %d failed, error %d",
 			  len, lnum, err);
 		ubifs_ro_mode(c, err);
 		dump_stack();
@@ -167,7 +208,7 @@ int ubifs_leb_unmap(struct ubifs_info *c, int lnum)
 	else
 		err = dbg_leb_unmap(c, lnum);
 	if (err) {
-		ubifs_err("unmap LEB %d failed, error %d", lnum, err);
+		ubifs_err(c, "unmap LEB %d failed, error %d", lnum, err);
 		ubifs_ro_mode(c, err);
 		dump_stack();
 	}
@@ -186,7 +227,7 @@ int ubifs_leb_map(struct ubifs_info *c, int lnum)
 	else
 		err = dbg_leb_map(c, lnum);
 	if (err) {
-		ubifs_err("mapping LEB %d failed, error %d", lnum, err);
+		ubifs_err(c, "mapping LEB %d failed, error %d", lnum, err);
 		ubifs_ro_mode(c, err);
 		dump_stack();
 	}
@@ -199,7 +240,7 @@ int ubifs_is_mapped(const struct ubifs_info *c, int lnum)
 
 	err = ubi_is_mapped(c->ubi, lnum);
 	if (err < 0) {
-		ubifs_err("ubi_is_mapped failed for LEB %d, error %d",
+		ubifs_err(c, "ubi_is_mapped failed for LEB %d, error %d",
 			  lnum, err);
 		dump_stack();
 	}
@@ -247,7 +288,7 @@ int ubifs_check_node(const struct ubifs_info *c, const void *buf, int lnum,
 	magic = le32_to_cpu(ch->magic);
 	if (magic != UBIFS_NODE_MAGIC) {
 		if (!quiet)
-			ubifs_err("bad magic %#08x, expected %#08x",
+			ubifs_err(c, "bad magic %#08x, expected %#08x",
 				  magic, UBIFS_NODE_MAGIC);
 		err = -EUCLEAN;
 		goto out;
@@ -256,7 +297,7 @@ int ubifs_check_node(const struct ubifs_info *c, const void *buf, int lnum,
 	type = ch->node_type;
 	if (type < 0 || type >= UBIFS_NODE_TYPES_CNT) {
 		if (!quiet)
-			ubifs_err("bad node type %d", type);
+			ubifs_err(c, "bad node type %d", type);
 		goto out;
 	}
 
@@ -279,7 +320,7 @@ int ubifs_check_node(const struct ubifs_info *c, const void *buf, int lnum,
 	node_crc = le32_to_cpu(ch->crc);
 	if (crc != node_crc) {
 		if (!quiet)
-			ubifs_err("bad CRC: calculated %#08x, read %#08x",
+			ubifs_err(c, "bad CRC: calculated %#08x, read %#08x",
 				  crc, node_crc);
 		err = -EUCLEAN;
 		goto out;
@@ -289,10 +330,10 @@ int ubifs_check_node(const struct ubifs_info *c, const void *buf, int lnum,
 
 out_len:
 	if (!quiet)
-		ubifs_err("bad node length %d", node_len);
+		ubifs_err(c, "bad node length %d", node_len);
 out:
 	if (!quiet) {
-		ubifs_err("bad node at LEB %d:%d", lnum, offs);
+		ubifs_err(c, "bad node at LEB %d:%d", lnum, offs);
 		ubifs_dump_node(c, buf);
 		dump_stack();
 	}
@@ -355,11 +396,11 @@ static unsigned long long next_sqnum(struct ubifs_info *c)
 
 	if (unlikely(sqnum >= SQNUM_WARN_WATERMARK)) {
 		if (sqnum >= SQNUM_WATERMARK) {
-			ubifs_err("sequence number overflow %llu, end of life",
+			ubifs_err(c, "sequence number overflow %llu, end of life",
 				  sqnum);
 			ubifs_ro_mode(c, -EINVAL);
 		}
-		ubifs_warn("running out of sequence numbers, end of life soon");
+		ubifs_warn(c, "running out of sequence numbers, end of life soon");
 	}
 
 	return sqnum;
@@ -636,7 +677,7 @@ int ubifs_bg_wbufs_sync(struct ubifs_info *c)
 		err = ubifs_wbuf_sync_nolock(wbuf);
 		mutex_unlock(&wbuf->io_mutex);
 		if (err) {
-			ubifs_err("cannot sync write-buffer, error %d", err);
+			ubifs_err(c, "cannot sync write-buffer, error %d", err);
 			ubifs_ro_mode(c, err);
 			goto out_timers;
 		}
@@ -833,7 +874,7 @@ exit:
 	return 0;
 
 out:
-	ubifs_err("cannot write %d bytes to LEB %d:%d, error %d",
+	ubifs_err(c, "cannot write %d bytes to LEB %d:%d, error %d",
 		  len, wbuf->lnum, wbuf->offs, err);
 	ubifs_dump_node(c, buf);
 	dump_stack();
@@ -932,27 +973,27 @@ int ubifs_read_node_wbuf(struct ubifs_wbuf *wbuf, void *buf, int type, int len,
 	}
 
 	if (type != ch->node_type) {
-		ubifs_err("bad node type (%d but expected %d)",
+		ubifs_err(c, "bad node type (%d but expected %d)",
 			  ch->node_type, type);
 		goto out;
 	}
 
 	err = ubifs_check_node(c, buf, lnum, offs, 0, 0);
 	if (err) {
-		ubifs_err("expected node type %d", type);
+		ubifs_err(c, "expected node type %d", type);
 		return err;
 	}
 
 	rlen = le32_to_cpu(ch->len);
 	if (rlen != len) {
-		ubifs_err("bad node length %d, expected %d", rlen, len);
+		ubifs_err(c, "bad node length %d, expected %d", rlen, len);
 		goto out;
 	}
 
 	return 0;
 
 out:
-	ubifs_err("bad node at LEB %d:%d", lnum, offs);
+	ubifs_err(c, "bad node at LEB %d:%d", lnum, offs);
 	ubifs_dump_node(c, buf);
 	dump_stack();
 	return -EINVAL;

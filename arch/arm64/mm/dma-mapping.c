@@ -130,7 +130,7 @@ static void __dma_free_coherent(struct device *dev, size_t size,
 		WARN_ONCE(1, "Use an actual device structure for DMA allocation\n");
 		return;
 	}
-
+	size = PAGE_ALIGN(size);
 	freed = dma_release_from_contiguous(dev,
 					phys_to_page(paddr),
 					size >> PAGE_SHIFT);
@@ -170,7 +170,7 @@ static void *__dma_alloc_noncoherent(struct device *dev, size_t size,
 	coherent_ptr = dma_common_contiguous_remap(page, size, VM_USERMAP,
 				__get_dma_pgprot(attrs,
 					__pgprot(PROT_NORMAL_NC), false),
-					NULL);
+					__builtin_return_address(0));
 	if (!coherent_ptr)
 		goto no_map;
 

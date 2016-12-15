@@ -1,0 +1,370 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+COMPAT_ION_IOC_ALLOC	compat_ion.c	42;"	d	file:
+COMPAT_ION_IOC_CUSTOM	compat_ion.c	46;"	d	file:
+COMPAT_ION_IOC_FREE	compat_ion.c	44;"	d	file:
+ION_CARVEOUT_ALLOCATE_FAIL	ion_priv.h	345;"	d
+ION_CMA_ALLOCATE_FAILED	ion_cma_heap.c	27;"	d	file:
+ION_HEAP_FLAG_DEFER_FREE	ion_priv.h	132;"	d
+ION_PRIV_FLAG_SHRINKER_FREE	ion_priv.h	143;"	d
+_ION_PRIV_H	ion_priv.h	18;"	d
+_LINUX_COMPAT_ION_H	compat_ion.h	18;"	d
+_LINUX_ION_H	ion.h	18;"	d
+_ion_buffer_destroy	ion.c	/^static void _ion_buffer_destroy(struct kref *kref)$/;"	f	file:
+_ion_heap_freelist_drain	ion_heap.c	/^static size_t _ion_heap_freelist_drain(struct ion_heap *heap, size_t size,$/;"	f	file:
+align	compat_ion.c	/^	compat_size_t align;$/;"	m	struct:compat_ion_allocation_data	file:
+align	ion.h	/^	ion_phys_addr_t align;$/;"	m	struct:ion_platform_heap
+alloc_buffer_page	ion_system_heap.c	/^static struct page *alloc_buffer_page(struct ion_system_heap *heap,$/;"	f	file:
+alloc_largest_available	ion_system_heap.c	/^static struct page *alloc_largest_available(struct ion_system_heap *heap,$/;"	f	file:
+allocate	ion_priv.h	/^	int (*allocate)(struct ion_heap *heap,$/;"	m	struct:ion_heap_ops
+allocated	ion_chunk_heap.c	/^	unsigned long allocated;$/;"	m	struct:ion_chunk_heap	file:
+arg	compat_ion.c	/^	compat_ulong_t arg;$/;"	m	struct:compat_ion_custom_data	file:
+base	ion.h	/^	ion_phys_addr_t base;$/;"	m	struct:ion_platform_heap
+base	ion_carveout_heap.c	/^	ion_phys_addr_t base;$/;"	m	struct:ion_carveout_heap	file:
+base	ion_chunk_heap.c	/^	ion_phys_addr_t base;$/;"	m	struct:ion_chunk_heap	file:
+buffer	ion.c	/^	struct ion_buffer *buffer;$/;"	m	struct:ion_handle	typeref:struct:ion_handle::ion_buffer	file:
+buffer_lock	ion.c	/^	struct mutex buffer_lock;$/;"	m	struct:ion_device	typeref:struct:ion_device::mutex	file:
+buffers	ion.c	/^	struct rb_root buffers;$/;"	m	struct:ion_device	typeref:struct:ion_device::rb_root	file:
+carveout_heap_ops	ion_carveout_heap.c	/^static struct ion_heap_ops carveout_heap_ops = {$/;"	v	typeref:struct:ion_heap_ops	file:
+carveout_ptr	ion_dummy_driver.c	/^static void *carveout_ptr;$/;"	v	file:
+chunk_heap_ops	ion_chunk_heap.c	/^static struct ion_heap_ops chunk_heap_ops = {$/;"	v	typeref:struct:ion_heap_ops	file:
+chunk_ptr	ion_dummy_driver.c	/^static void *chunk_ptr;$/;"	v	file:
+chunk_size	ion_chunk_heap.c	/^	unsigned long chunk_size;$/;"	m	struct:ion_chunk_heap	file:
+client	ion.c	/^	struct ion_client *client;$/;"	m	struct:ion_handle	typeref:struct:ion_handle::ion_client	file:
+clients	ion.c	/^	struct rb_root clients;$/;"	m	struct:ion_device	typeref:struct:ion_device::rb_root	file:
+clients_debug_root	ion.c	/^	struct dentry *clients_debug_root;$/;"	m	struct:ion_device	typeref:struct:ion_device::dentry	file:
+cmd	compat_ion.c	/^	compat_uint_t cmd;$/;"	m	struct:compat_ion_custom_data	file:
+compat_get_ion_allocation_data	compat_ion.c	/^static int compat_get_ion_allocation_data($/;"	f	file:
+compat_get_ion_custom_data	compat_ion.c	/^static int compat_get_ion_custom_data($/;"	f	file:
+compat_get_ion_handle_data	compat_ion.c	/^static int compat_get_ion_handle_data($/;"	f	file:
+compat_ion_allocation_data	compat_ion.c	/^struct compat_ion_allocation_data {$/;"	s	file:
+compat_ion_custom_data	compat_ion.c	/^struct compat_ion_custom_data {$/;"	s	file:
+compat_ion_handle_data	compat_ion.c	/^struct compat_ion_handle_data {$/;"	s	file:
+compat_ion_ioctl	compat_ion.c	/^long compat_ion_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)$/;"	f
+compat_ion_ioctl	compat_ion.h	26;"	d
+compat_put_ion_allocation_data	compat_ion.c	/^static int compat_put_ion_allocation_data($/;"	f	file:
+cpu_addr	ion_cma_heap.c	/^	void *cpu_addr;$/;"	m	struct:ion_cma_buffer_info	file:
+custom_ioctl	ion.c	/^	long (*custom_ioctl)(struct ion_client *client, unsigned int cmd,$/;"	m	struct:ion_device	file:
+debug_client_fops	ion.c	/^static const struct file_operations debug_client_fops = {$/;"	v	typeref:struct:file_operations	file:
+debug_heap_fops	ion.c	/^static const struct file_operations debug_heap_fops = {$/;"	v	typeref:struct:file_operations	file:
+debug_root	ion.c	/^	struct dentry *debug_root;$/;"	m	struct:ion_client	typeref:struct:ion_client::dentry	file:
+debug_root	ion.c	/^	struct dentry *debug_root;$/;"	m	struct:ion_device	typeref:struct:ion_device::dentry	file:
+debug_show	ion_priv.h	/^	int (*debug_show)(struct ion_heap *heap, struct seq_file *, void *);$/;"	m	struct:ion_heap
+debug_shrink_get	ion.c	/^static int debug_shrink_get(void *data, u64 *val)$/;"	f	file:
+debug_shrink_set	ion.c	/^static int debug_shrink_set(void *data, u64 val)$/;"	f	file:
+dev	ion.c	/^	struct ion_device *dev;$/;"	m	struct:ion_client	typeref:struct:ion_client::ion_device	file:
+dev	ion.c	/^	struct miscdevice dev;$/;"	m	struct:ion_device	typeref:struct:ion_device::miscdevice	file:
+dev	ion_cma_heap.c	/^	struct device *dev;$/;"	m	struct:ion_cma_heap	typeref:struct:ion_cma_heap::device	file:
+dev	ion_priv.h	/^	struct ion_device *dev;$/;"	m	struct:ion_buffer	typeref:struct:ion_buffer::ion_device
+dev	ion_priv.h	/^	struct ion_device *dev;$/;"	m	struct:ion_heap	typeref:struct:ion_heap::ion_device
+dev	ion_test.c	/^	struct device *dev;$/;"	m	struct:ion_test_data	typeref:struct:ion_test_data::device	file:
+display_name	ion.c	/^	char *display_name;$/;"	m	struct:ion_client	file:
+display_serial	ion.c	/^	int display_serial;$/;"	m	struct:ion_client	file:
+dma_buf	ion_test.c	/^	struct dma_buf *dma_buf;$/;"	m	struct:ion_test_data	typeref:struct:ion_test_data::dma_buf	file:
+dma_buf_ops	ion.c	/^static struct dma_buf_ops dma_buf_ops = {$/;"	v	typeref:struct:dma_buf_ops	file:
+dmap_cnt	ion_priv.h	/^	int dmap_cnt;$/;"	m	struct:ion_buffer
+dummy_heaps	ion_dummy_driver.c	/^static struct ion_platform_heap dummy_heaps[] = {$/;"	v	typeref:struct:ion_platform_heap	file:
+dummy_ion_pdata	ion_dummy_driver.c	/^static struct ion_platform_data dummy_ion_pdata = {$/;"	v	typeref:struct:ion_platform_data	file:
+flags	compat_ion.c	/^	compat_uint_t flags;$/;"	m	struct:compat_ion_allocation_data	file:
+flags	ion_priv.h	/^	unsigned long flags;$/;"	m	struct:ion_buffer
+flags	ion_priv.h	/^	unsigned long flags;$/;"	m	struct:ion_heap
+free	ion_priv.h	/^	void (*free)(struct ion_buffer *buffer);$/;"	m	struct:ion_heap_ops
+free_buffer_page	ion_system_heap.c	/^static void free_buffer_page(struct ion_system_heap *heap,$/;"	f	file:
+free_list	ion_priv.h	/^	struct list_head free_list;$/;"	m	struct:ion_heap	typeref:struct:ion_heap::list_head
+free_list_size	ion_priv.h	/^	size_t free_list_size;$/;"	m	struct:ion_heap
+free_lock	ion_priv.h	/^	spinlock_t free_lock;$/;"	m	struct:ion_heap
+gfp_mask	ion_priv.h	/^	gfp_t gfp_mask;$/;"	m	struct:ion_page_pool
+handle	compat_ion.c	/^	compat_int_t handle;$/;"	m	struct:compat_ion_allocation_data	file:
+handle	compat_ion.c	/^	compat_int_t handle;$/;"	m	struct:compat_ion_handle_data	file:
+handle	ion_cma_heap.c	/^	dma_addr_t handle;$/;"	m	struct:ion_cma_buffer_info	file:
+handle_count	ion_priv.h	/^	int handle_count;$/;"	m	struct:ion_buffer
+handles	ion.c	/^	struct rb_root handles;$/;"	m	struct:ion_client	typeref:struct:ion_client::rb_root	file:
+heap	ion_carveout_heap.c	/^	struct ion_heap heap;$/;"	m	struct:ion_carveout_heap	typeref:struct:ion_carveout_heap::ion_heap	file:
+heap	ion_chunk_heap.c	/^	struct ion_heap heap;$/;"	m	struct:ion_chunk_heap	typeref:struct:ion_chunk_heap::ion_heap	file:
+heap	ion_cma_heap.c	/^	struct ion_heap heap;$/;"	m	struct:ion_cma_heap	typeref:struct:ion_cma_heap::ion_heap	file:
+heap	ion_priv.h	/^	struct ion_heap *heap;$/;"	m	struct:ion_buffer	typeref:struct:ion_buffer::ion_heap
+heap	ion_system_heap.c	/^	struct ion_heap heap;$/;"	m	struct:ion_system_heap	typeref:struct:ion_system_heap::ion_heap	file:
+heap_id_mask	compat_ion.c	/^	compat_uint_t heap_id_mask;$/;"	m	struct:compat_ion_allocation_data	file:
+heaps	ion.c	/^	struct plist_head heaps;$/;"	m	struct:ion_device	typeref:struct:ion_device::plist_head	file:
+heaps	ion.h	/^	struct ion_platform_heap *heaps;$/;"	m	struct:ion_platform_data	typeref:struct:ion_platform_data::ion_platform_heap
+heaps	ion_dummy_driver.c	/^static struct ion_heap **heaps;$/;"	v	typeref:struct:ion_heap	file:
+heaps	tegra/tegra_ion.c	/^static struct ion_heap **heaps;$/;"	v	typeref:struct:ion_heap	file:
+heaps_debug_root	ion.c	/^	struct dentry *heaps_debug_root;$/;"	m	struct:ion_device	typeref:struct:ion_device::dentry	file:
+high_count	ion_priv.h	/^	int high_count;$/;"	m	struct:ion_page_pool
+high_items	ion_priv.h	/^	struct list_head high_items;$/;"	m	struct:ion_page_pool	typeref:struct:ion_page_pool::list_head
+high_order_gfp_flags	ion_system_heap.c	/^static gfp_t high_order_gfp_flags = (GFP_HIGHUSER | __GFP_ZERO | __GFP_NOWARN |$/;"	v	file:
+id	ion.c	/^	int id;$/;"	m	struct:ion_handle	file:
+id	ion.h	/^	unsigned int id;$/;"	m	struct:ion_platform_heap
+id	ion_priv.h	/^	unsigned int id;$/;"	m	struct:ion_heap
+idev	ion_dummy_driver.c	/^static struct ion_device *idev;$/;"	v	typeref:struct:ion_device	file:
+idev	tegra/tegra_ion.c	/^static struct ion_device *idev;$/;"	v	typeref:struct:ion_device	file:
+idr	ion.c	/^	struct idr idr;$/;"	m	struct:ion_client	typeref:struct:ion_client::idr	file:
+ion_alloc	ion.c	/^EXPORT_SYMBOL(ion_alloc);$/;"	v
+ion_alloc	ion.c	/^struct ion_handle *ion_alloc(struct ion_client *client, size_t len,$/;"	f
+ion_buffer	ion_priv.h	/^struct ion_buffer {$/;"	s
+ion_buffer_add	ion.c	/^static void ion_buffer_add(struct ion_device *dev,$/;"	f	file:
+ion_buffer_add_to_handle	ion.c	/^static void ion_buffer_add_to_handle(struct ion_buffer *buffer)$/;"	f	file:
+ion_buffer_cached	ion.c	/^bool ion_buffer_cached(struct ion_buffer *buffer)$/;"	f
+ion_buffer_create	ion.c	/^static struct ion_buffer *ion_buffer_create(struct ion_heap *heap,$/;"	f	file:
+ion_buffer_destroy	ion.c	/^void ion_buffer_destroy(struct ion_buffer *buffer)$/;"	f
+ion_buffer_fault_user_mappings	ion.c	/^bool ion_buffer_fault_user_mappings(struct ion_buffer *buffer)$/;"	f
+ion_buffer_get	ion.c	/^static void ion_buffer_get(struct ion_buffer *buffer)$/;"	f	file:
+ion_buffer_kmap_get	ion.c	/^static void *ion_buffer_kmap_get(struct ion_buffer *buffer)$/;"	f	file:
+ion_buffer_kmap_put	ion.c	/^static void ion_buffer_kmap_put(struct ion_buffer *buffer)$/;"	f	file:
+ion_buffer_page	ion.c	/^static inline struct page *ion_buffer_page(struct page *page)$/;"	f	file:
+ion_buffer_page_clean	ion.c	/^static inline void ion_buffer_page_clean(struct page **page)$/;"	f	file:
+ion_buffer_page_dirty	ion.c	/^static inline void ion_buffer_page_dirty(struct page **page)$/;"	f	file:
+ion_buffer_page_is_dirty	ion.c	/^static inline bool ion_buffer_page_is_dirty(struct page *page)$/;"	f	file:
+ion_buffer_put	ion.c	/^static int ion_buffer_put(struct ion_buffer *buffer)$/;"	f	file:
+ion_buffer_remove_from_handle	ion.c	/^static void ion_buffer_remove_from_handle(struct ion_buffer *buffer)$/;"	f	file:
+ion_buffer_sync_for_device	ion.c	/^static void ion_buffer_sync_for_device(struct ion_buffer *buffer,$/;"	f	file:
+ion_carveout_allocate	ion_carveout_heap.c	/^ion_phys_addr_t ion_carveout_allocate(struct ion_heap *heap,$/;"	f
+ion_carveout_free	ion_carveout_heap.c	/^void ion_carveout_free(struct ion_heap *heap, ion_phys_addr_t addr,$/;"	f
+ion_carveout_heap	ion_carveout_heap.c	/^struct ion_carveout_heap {$/;"	s	file:
+ion_carveout_heap_allocate	ion_carveout_heap.c	/^static int ion_carveout_heap_allocate(struct ion_heap *heap,$/;"	f	file:
+ion_carveout_heap_create	ion_carveout_heap.c	/^struct ion_heap *ion_carveout_heap_create(struct ion_platform_heap *heap_data)$/;"	f
+ion_carveout_heap_destroy	ion_carveout_heap.c	/^void ion_carveout_heap_destroy(struct ion_heap *heap)$/;"	f
+ion_carveout_heap_free	ion_carveout_heap.c	/^static void ion_carveout_heap_free(struct ion_buffer *buffer)$/;"	f	file:
+ion_carveout_heap_map_dma	ion_carveout_heap.c	/^static struct sg_table *ion_carveout_heap_map_dma(struct ion_heap *heap,$/;"	f	file:
+ion_carveout_heap_phys	ion_carveout_heap.c	/^static int ion_carveout_heap_phys(struct ion_heap *heap,$/;"	f	file:
+ion_carveout_heap_unmap_dma	ion_carveout_heap.c	/^static void ion_carveout_heap_unmap_dma(struct ion_heap *heap,$/;"	f	file:
+ion_chunk_heap	ion_chunk_heap.c	/^struct ion_chunk_heap {$/;"	s	file:
+ion_chunk_heap_allocate	ion_chunk_heap.c	/^static int ion_chunk_heap_allocate(struct ion_heap *heap,$/;"	f	file:
+ion_chunk_heap_create	ion_chunk_heap.c	/^struct ion_heap *ion_chunk_heap_create(struct ion_platform_heap *heap_data)$/;"	f
+ion_chunk_heap_destroy	ion_chunk_heap.c	/^void ion_chunk_heap_destroy(struct ion_heap *heap)$/;"	f
+ion_chunk_heap_free	ion_chunk_heap.c	/^static void ion_chunk_heap_free(struct ion_buffer *buffer)$/;"	f	file:
+ion_chunk_heap_map_dma	ion_chunk_heap.c	/^static struct sg_table *ion_chunk_heap_map_dma(struct ion_heap *heap,$/;"	f	file:
+ion_chunk_heap_unmap_dma	ion_chunk_heap.c	/^static void ion_chunk_heap_unmap_dma(struct ion_heap *heap,$/;"	f	file:
+ion_client	ion.c	/^struct ion_client {$/;"	s	file:
+ion_client_create	ion.c	/^EXPORT_SYMBOL(ion_client_create);$/;"	v
+ion_client_create	ion.c	/^struct ion_client *ion_client_create(struct ion_device *dev,$/;"	f
+ion_client_destroy	ion.c	/^EXPORT_SYMBOL(ion_client_destroy);$/;"	v
+ion_client_destroy	ion.c	/^void ion_client_destroy(struct ion_client *client)$/;"	f
+ion_cma_allocate	ion_cma_heap.c	/^static int ion_cma_allocate(struct ion_heap *heap, struct ion_buffer *buffer,$/;"	f	file:
+ion_cma_buffer_info	ion_cma_heap.c	/^struct ion_cma_buffer_info {$/;"	s	file:
+ion_cma_free	ion_cma_heap.c	/^static void ion_cma_free(struct ion_buffer *buffer)$/;"	f	file:
+ion_cma_heap	ion_cma_heap.c	/^struct ion_cma_heap {$/;"	s	file:
+ion_cma_heap_create	ion_cma_heap.c	/^struct ion_heap *ion_cma_heap_create(struct ion_platform_heap *data)$/;"	f
+ion_cma_heap_destroy	ion_cma_heap.c	/^void ion_cma_heap_destroy(struct ion_heap *heap)$/;"	f
+ion_cma_heap_map_dma	ion_cma_heap.c	/^static struct sg_table *ion_cma_heap_map_dma(struct ion_heap *heap,$/;"	f	file:
+ion_cma_heap_unmap_dma	ion_cma_heap.c	/^static void ion_cma_heap_unmap_dma(struct ion_heap *heap,$/;"	f	file:
+ion_cma_map_kernel	ion_cma_heap.c	/^static void *ion_cma_map_kernel(struct ion_heap *heap,$/;"	f	file:
+ion_cma_mmap	ion_cma_heap.c	/^static int ion_cma_mmap(struct ion_heap *mapper, struct ion_buffer *buffer,$/;"	f	file:
+ion_cma_ops	ion_cma_heap.c	/^static struct ion_heap_ops ion_cma_ops = {$/;"	v	typeref:struct:ion_heap_ops	file:
+ion_cma_phys	ion_cma_heap.c	/^static int ion_cma_phys(struct ion_heap *heap, struct ion_buffer *buffer,$/;"	f	file:
+ion_cma_unmap_kernel	ion_cma_heap.c	/^static void ion_cma_unmap_kernel(struct ion_heap *heap,$/;"	f	file:
+ion_debug_client_open	ion.c	/^static int ion_debug_client_open(struct inode *inode, struct file *file)$/;"	f	file:
+ion_debug_client_show	ion.c	/^static int ion_debug_client_show(struct seq_file *s, void *unused)$/;"	f	file:
+ion_debug_heap_open	ion.c	/^static int ion_debug_heap_open(struct inode *inode, struct file *file)$/;"	f	file:
+ion_debug_heap_show	ion.c	/^static int ion_debug_heap_show(struct seq_file *s, void *unused)$/;"	f	file:
+ion_debug_heap_total	ion.c	/^static size_t ion_debug_heap_total(struct ion_client *client,$/;"	f	file:
+ion_device	ion.c	/^struct ion_device {$/;"	s	file:
+ion_device_add_heap	ion.c	/^EXPORT_SYMBOL(ion_device_add_heap);$/;"	v
+ion_device_add_heap	ion.c	/^void ion_device_add_heap(struct ion_device *dev, struct ion_heap *heap)$/;"	f
+ion_device_create	ion.c	/^EXPORT_SYMBOL(ion_device_create);$/;"	v
+ion_device_create	ion.c	/^struct ion_device *ion_device_create(long (*custom_ioctl)$/;"	f
+ion_device_destroy	ion.c	/^EXPORT_SYMBOL(ion_device_destroy);$/;"	v
+ion_device_destroy	ion.c	/^void ion_device_destroy(struct ion_device *dev)$/;"	f
+ion_dma_buf_begin_cpu_access	ion.c	/^static int ion_dma_buf_begin_cpu_access(struct dma_buf *dmabuf, size_t start,$/;"	f	file:
+ion_dma_buf_end_cpu_access	ion.c	/^static void ion_dma_buf_end_cpu_access(struct dma_buf *dmabuf, size_t start,$/;"	f	file:
+ion_dma_buf_kmap	ion.c	/^static void *ion_dma_buf_kmap(struct dma_buf *dmabuf, unsigned long offset)$/;"	f	file:
+ion_dma_buf_kunmap	ion.c	/^static void ion_dma_buf_kunmap(struct dma_buf *dmabuf, unsigned long offset,$/;"	f	file:
+ion_dma_buf_release	ion.c	/^static void ion_dma_buf_release(struct dma_buf *dmabuf)$/;"	f	file:
+ion_driver	tegra/tegra_ion.c	/^module_platform_driver(ion_driver);$/;"	v
+ion_driver	tegra/tegra_ion.c	/^static struct platform_driver ion_driver = {$/;"	v	typeref:struct:platform_driver	file:
+ion_dummy_exit	ion_dummy_driver.c	/^__exitcall(ion_dummy_exit);$/;"	v
+ion_dummy_exit	ion_dummy_driver.c	/^static void __exit ion_dummy_exit(void)$/;"	f	file:
+ion_dummy_init	ion_dummy_driver.c	/^device_initcall(ion_dummy_init);$/;"	v
+ion_dummy_init	ion_dummy_driver.c	/^static int __init ion_dummy_init(void)$/;"	f	file:
+ion_fops	ion.c	/^static const struct file_operations ion_fops = {$/;"	v	typeref:struct:file_operations	file:
+ion_free	ion.c	/^EXPORT_SYMBOL(ion_free);$/;"	v
+ion_free	ion.c	/^void ion_free(struct ion_client *client, struct ion_handle *handle)$/;"	f
+ion_get_client_serial	ion.c	/^static int ion_get_client_serial(const struct rb_root *root,$/;"	f	file:
+ion_handle	ion.c	/^struct ion_handle {$/;"	s	file:
+ion_handle_add	ion.c	/^static int ion_handle_add(struct ion_client *client, struct ion_handle *handle)$/;"	f	file:
+ion_handle_buffer	ion.c	/^struct ion_buffer *ion_handle_buffer(struct ion_handle *handle)$/;"	f
+ion_handle_create	ion.c	/^static struct ion_handle *ion_handle_create(struct ion_client *client,$/;"	f	file:
+ion_handle_destroy	ion.c	/^static void ion_handle_destroy(struct kref *kref)$/;"	f	file:
+ion_handle_get	ion.c	/^static void ion_handle_get(struct ion_handle *handle)$/;"	f	file:
+ion_handle_get_by_id	ion.c	/^static struct ion_handle *ion_handle_get_by_id(struct ion_client *client,$/;"	f	file:
+ion_handle_kmap_get	ion.c	/^static void *ion_handle_kmap_get(struct ion_handle *handle)$/;"	f	file:
+ion_handle_kmap_put	ion.c	/^static void ion_handle_kmap_put(struct ion_handle *handle)$/;"	f	file:
+ion_handle_lookup	ion.c	/^static struct ion_handle *ion_handle_lookup(struct ion_client *client,$/;"	f	file:
+ion_handle_put	ion.c	/^static int ion_handle_put(struct ion_handle *handle)$/;"	f	file:
+ion_handle_test_dma	ion_test.c	/^static int ion_handle_test_dma(struct device *dev, struct dma_buf *dma_buf,$/;"	f	file:
+ion_handle_test_kernel	ion_test.c	/^static int ion_handle_test_kernel(struct dma_buf *dma_buf, void __user *ptr,$/;"	f	file:
+ion_handle_validate	ion.c	/^static bool ion_handle_validate(struct ion_client *client,$/;"	f	file:
+ion_heap	ion_priv.h	/^struct ion_heap {$/;"	s
+ion_heap_buffer_zero	ion_heap.c	/^int ion_heap_buffer_zero(struct ion_buffer *buffer)$/;"	f
+ion_heap_clear_pages	ion_heap.c	/^static int ion_heap_clear_pages(struct page **pages, int num, pgprot_t pgprot)$/;"	f	file:
+ion_heap_create	ion_heap.c	/^EXPORT_SYMBOL(ion_heap_create);$/;"	v
+ion_heap_create	ion_heap.c	/^struct ion_heap *ion_heap_create(struct ion_platform_heap *heap_data)$/;"	f
+ion_heap_deferred_free	ion_heap.c	/^static int ion_heap_deferred_free(void *data)$/;"	f	file:
+ion_heap_destroy	ion_heap.c	/^EXPORT_SYMBOL(ion_heap_destroy);$/;"	v
+ion_heap_destroy	ion_heap.c	/^void ion_heap_destroy(struct ion_heap *heap)$/;"	f
+ion_heap_freelist_add	ion_heap.c	/^void ion_heap_freelist_add(struct ion_heap *heap, struct ion_buffer *buffer)$/;"	f
+ion_heap_freelist_drain	ion_heap.c	/^size_t ion_heap_freelist_drain(struct ion_heap *heap, size_t size)$/;"	f
+ion_heap_freelist_shrink	ion_heap.c	/^size_t ion_heap_freelist_shrink(struct ion_heap *heap, size_t size)$/;"	f
+ion_heap_freelist_size	ion_heap.c	/^size_t ion_heap_freelist_size(struct ion_heap *heap)$/;"	f
+ion_heap_init_deferred_free	ion_heap.c	/^int ion_heap_init_deferred_free(struct ion_heap *heap)$/;"	f
+ion_heap_init_shrinker	ion_heap.c	/^void ion_heap_init_shrinker(struct ion_heap *heap)$/;"	f
+ion_heap_map_kernel	ion_heap.c	/^void *ion_heap_map_kernel(struct ion_heap *heap,$/;"	f
+ion_heap_map_user	ion_heap.c	/^int ion_heap_map_user(struct ion_heap *heap, struct ion_buffer *buffer,$/;"	f
+ion_heap_ops	ion_priv.h	/^struct ion_heap_ops {$/;"	s
+ion_heap_pages_zero	ion_heap.c	/^int ion_heap_pages_zero(struct page *page, size_t size, pgprot_t pgprot)$/;"	f
+ion_heap_sglist_zero	ion_heap.c	/^static int ion_heap_sglist_zero(struct scatterlist *sgl, unsigned int nents,$/;"	f	file:
+ion_heap_shrink_count	ion_heap.c	/^static unsigned long ion_heap_shrink_count(struct shrinker *shrinker,$/;"	f	file:
+ion_heap_shrink_scan	ion_heap.c	/^static unsigned long ion_heap_shrink_scan(struct shrinker *shrinker,$/;"	f	file:
+ion_heap_unmap_kernel	ion_heap.c	/^void ion_heap_unmap_kernel(struct ion_heap *heap,$/;"	f
+ion_import_dma_buf	ion.c	/^EXPORT_SYMBOL(ion_import_dma_buf);$/;"	v
+ion_import_dma_buf	ion.c	/^struct ion_handle *ion_import_dma_buf(struct ion_client *client, int fd)$/;"	f
+ion_ioctl	ion.c	/^static long ion_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)$/;"	f	file:
+ion_ioctl_dir	ion.c	/^static unsigned int ion_ioctl_dir(unsigned int cmd)$/;"	f	file:
+ion_map_dma_buf	ion.c	/^static struct sg_table *ion_map_dma_buf(struct dma_buf_attachment *attachment,$/;"	f	file:
+ion_map_kernel	ion.c	/^EXPORT_SYMBOL(ion_map_kernel);$/;"	v
+ion_map_kernel	ion.c	/^void *ion_map_kernel(struct ion_client *client, struct ion_handle *handle)$/;"	f
+ion_mmap	ion.c	/^static int ion_mmap(struct dma_buf *dmabuf, struct vm_area_struct *vma)$/;"	f	file:
+ion_open	ion.c	/^static int ion_open(struct inode *inode, struct file *file)$/;"	f	file:
+ion_page_pool	ion_priv.h	/^struct ion_page_pool {$/;"	s
+ion_page_pool_add	ion_page_pool.c	/^static int ion_page_pool_add(struct ion_page_pool *pool, struct page *page)$/;"	f	file:
+ion_page_pool_alloc	ion_page_pool.c	/^struct page *ion_page_pool_alloc(struct ion_page_pool *pool)$/;"	f
+ion_page_pool_alloc_pages	ion_page_pool.c	/^static void *ion_page_pool_alloc_pages(struct ion_page_pool *pool)$/;"	f	file:
+ion_page_pool_alloc_set_cache_policy	ion_priv.h	/^static inline void ion_page_pool_alloc_set_cache_policy$/;"	f
+ion_page_pool_create	ion_page_pool.c	/^struct ion_page_pool *ion_page_pool_create(gfp_t gfp_mask, unsigned int order)$/;"	f
+ion_page_pool_destroy	ion_page_pool.c	/^void ion_page_pool_destroy(struct ion_page_pool *pool)$/;"	f
+ion_page_pool_free	ion_page_pool.c	/^void ion_page_pool_free(struct ion_page_pool *pool, struct page *page)$/;"	f
+ion_page_pool_free_immediate	ion_page_pool.c	/^void ion_page_pool_free_immediate(struct ion_page_pool *pool, struct page *page)$/;"	f
+ion_page_pool_free_pages	ion_page_pool.c	/^static void ion_page_pool_free_pages(struct ion_page_pool *pool,$/;"	f	file:
+ion_page_pool_free_set_cache_policy	ion_priv.h	/^static inline void ion_page_pool_free_set_cache_policy$/;"	f
+ion_page_pool_init	ion_page_pool.c	/^device_initcall(ion_page_pool_init);$/;"	v
+ion_page_pool_init	ion_page_pool.c	/^static int __init ion_page_pool_init(void)$/;"	f	file:
+ion_page_pool_remove	ion_page_pool.c	/^static struct page *ion_page_pool_remove(struct ion_page_pool *pool, bool high)$/;"	f	file:
+ion_page_pool_shrink	ion_page_pool.c	/^int ion_page_pool_shrink(struct ion_page_pool *pool, gfp_t gfp_mask,$/;"	f
+ion_page_pool_total	ion_page_pool.c	/^static int ion_page_pool_total(struct ion_page_pool *pool, bool high)$/;"	f	file:
+ion_pages_sync_for_device	ion.c	/^void ion_pages_sync_for_device(struct device *dev, struct page *page,$/;"	f
+ion_phys	ion.c	/^EXPORT_SYMBOL(ion_phys);$/;"	v
+ion_phys	ion.c	/^int ion_phys(struct ion_client *client, struct ion_handle *handle,$/;"	f
+ion_phys_addr_t	ion.h	37;"	d
+ion_platform_data	ion.h	/^struct ion_platform_data {$/;"	s
+ion_platform_heap	ion.h	/^struct ion_platform_heap {$/;"	s
+ion_release	ion.c	/^static int ion_release(struct inode *inode, struct file *file)$/;"	f	file:
+ion_reserve	ion.c	/^void __init ion_reserve(struct ion_platform_data *data)$/;"	f
+ion_sg_table	ion.c	/^EXPORT_SYMBOL(ion_sg_table);$/;"	v
+ion_sg_table	ion.c	/^struct sg_table *ion_sg_table(struct ion_client *client,$/;"	f
+ion_share_dma_buf	ion.c	/^EXPORT_SYMBOL(ion_share_dma_buf);$/;"	v
+ion_share_dma_buf	ion.c	/^struct dma_buf *ion_share_dma_buf(struct ion_client *client,$/;"	f
+ion_share_dma_buf_fd	ion.c	/^EXPORT_SYMBOL(ion_share_dma_buf_fd);$/;"	v
+ion_share_dma_buf_fd	ion.c	/^int ion_share_dma_buf_fd(struct ion_client *client, struct ion_handle *handle)$/;"	f
+ion_sync_for_device	ion.c	/^static int ion_sync_for_device(struct ion_client *client, int fd)$/;"	f	file:
+ion_system_contig_heap_allocate	ion_system_heap.c	/^static int ion_system_contig_heap_allocate(struct ion_heap *heap,$/;"	f	file:
+ion_system_contig_heap_create	ion_system_heap.c	/^struct ion_heap *ion_system_contig_heap_create(struct ion_platform_heap *unused)$/;"	f
+ion_system_contig_heap_destroy	ion_system_heap.c	/^void ion_system_contig_heap_destroy(struct ion_heap *heap)$/;"	f
+ion_system_contig_heap_free	ion_system_heap.c	/^static void ion_system_contig_heap_free(struct ion_buffer *buffer)$/;"	f	file:
+ion_system_contig_heap_map_dma	ion_system_heap.c	/^static struct sg_table *ion_system_contig_heap_map_dma(struct ion_heap *heap,$/;"	f	file:
+ion_system_contig_heap_phys	ion_system_heap.c	/^static int ion_system_contig_heap_phys(struct ion_heap *heap,$/;"	f	file:
+ion_system_contig_heap_unmap_dma	ion_system_heap.c	/^static void ion_system_contig_heap_unmap_dma(struct ion_heap *heap,$/;"	f	file:
+ion_system_heap	ion_system_heap.c	/^struct ion_system_heap {$/;"	s	file:
+ion_system_heap_allocate	ion_system_heap.c	/^static int ion_system_heap_allocate(struct ion_heap *heap,$/;"	f	file:
+ion_system_heap_create	ion_system_heap.c	/^struct ion_heap *ion_system_heap_create(struct ion_platform_heap *unused)$/;"	f
+ion_system_heap_debug_show	ion_system_heap.c	/^static int ion_system_heap_debug_show(struct ion_heap *heap, struct seq_file *s,$/;"	f	file:
+ion_system_heap_destroy	ion_system_heap.c	/^void ion_system_heap_destroy(struct ion_heap *heap)$/;"	f
+ion_system_heap_free	ion_system_heap.c	/^static void ion_system_heap_free(struct ion_buffer *buffer)$/;"	f	file:
+ion_system_heap_map_dma	ion_system_heap.c	/^static struct sg_table *ion_system_heap_map_dma(struct ion_heap *heap,$/;"	f	file:
+ion_system_heap_shrink	ion_system_heap.c	/^static int ion_system_heap_shrink(struct ion_heap *heap, gfp_t gfp_mask,$/;"	f	file:
+ion_system_heap_unmap_dma	ion_system_heap.c	/^static void ion_system_heap_unmap_dma(struct ion_heap *heap,$/;"	f	file:
+ion_test_data	ion_test.c	/^struct ion_test_data {$/;"	s	file:
+ion_test_device	ion_test.c	/^struct ion_test_device {$/;"	s	file:
+ion_test_exit	ion_test.c	/^module_exit(ion_test_exit);$/;"	v
+ion_test_exit	ion_test.c	/^static void __exit ion_test_exit(void)$/;"	f	file:
+ion_test_fops	ion_test.c	/^static const struct file_operations ion_test_fops = {$/;"	v	typeref:struct:file_operations	file:
+ion_test_init	ion_test.c	/^module_init(ion_test_init);$/;"	v
+ion_test_init	ion_test.c	/^static int __init ion_test_init(void)$/;"	f	file:
+ion_test_ioctl	ion_test.c	/^static long ion_test_ioctl(struct file *filp, unsigned int cmd,$/;"	f	file:
+ion_test_open	ion_test.c	/^static int ion_test_open(struct inode *inode, struct file *file)$/;"	f	file:
+ion_test_pdev	ion_test.c	/^static struct platform_device *ion_test_pdev;$/;"	v	typeref:struct:platform_device	file:
+ion_test_platform_driver	ion_test.c	/^static struct platform_driver ion_test_platform_driver = {$/;"	v	typeref:struct:platform_driver	file:
+ion_test_probe	ion_test.c	/^static int __init ion_test_probe(struct platform_device *pdev)$/;"	f	file:
+ion_test_release	ion_test.c	/^static int ion_test_release(struct inode *inode, struct file *file)$/;"	f	file:
+ion_test_remove	ion_test.c	/^static int ion_test_remove(struct platform_device *pdev)$/;"	f	file:
+ion_unmap_dma_buf	ion.c	/^static void ion_unmap_dma_buf(struct dma_buf_attachment *attachment,$/;"	f	file:
+ion_unmap_kernel	ion.c	/^EXPORT_SYMBOL(ion_unmap_kernel);$/;"	v
+ion_unmap_kernel	ion.c	/^void ion_unmap_kernel(struct ion_client *client, struct ion_handle *handle)$/;"	f
+ion_vm_close	ion.c	/^static void ion_vm_close(struct vm_area_struct *vma)$/;"	f	file:
+ion_vm_fault	ion.c	/^static int ion_vm_fault(struct vm_area_struct *vma, struct vm_fault *vmf)$/;"	f	file:
+ion_vm_open	ion.c	/^static void ion_vm_open(struct vm_area_struct *vma)$/;"	f	file:
+ion_vma_list	ion.c	/^struct ion_vma_list {$/;"	s	file:
+ion_vma_ops	ion.c	/^static const struct vm_operations_struct ion_vma_ops = {$/;"	v	typeref:struct:vm_operations_struct	file:
+kmalloc_ops	ion_system_heap.c	/^static struct ion_heap_ops kmalloc_ops = {$/;"	v	typeref:struct:ion_heap_ops	file:
+kmap_cnt	ion.c	/^	unsigned int kmap_cnt;$/;"	m	struct:ion_handle	file:
+kmap_cnt	ion_priv.h	/^	int kmap_cnt;$/;"	m	struct:ion_buffer
+len	compat_ion.c	/^	compat_size_t len;$/;"	m	struct:compat_ion_allocation_data	file:
+list	ion.c	/^	struct list_head list;$/;"	m	struct:ion_vma_list	typeref:struct:ion_vma_list::list_head	file:
+list	ion_priv.h	/^		struct list_head list;$/;"	m	union:ion_buffer::__anon1	typeref:struct:ion_buffer::__anon1::list_head
+list	ion_priv.h	/^	struct plist_node list;$/;"	m	struct:ion_page_pool	typeref:struct:ion_page_pool::plist_node
+lock	ion.c	/^	struct mutex lock;$/;"	m	struct:ion_client	typeref:struct:ion_client::mutex	file:
+lock	ion.c	/^	struct rw_semaphore lock;$/;"	m	struct:ion_device	typeref:struct:ion_device::rw_semaphore	file:
+lock	ion_priv.h	/^	struct mutex lock;$/;"	m	struct:ion_buffer	typeref:struct:ion_buffer::mutex
+low_count	ion_priv.h	/^	int low_count;$/;"	m	struct:ion_page_pool
+low_items	ion_priv.h	/^	struct list_head low_items;$/;"	m	struct:ion_page_pool	typeref:struct:ion_page_pool::list_head
+low_order_gfp_flags	ion_system_heap.c	/^static gfp_t low_order_gfp_flags  = (GFP_HIGHUSER | __GFP_ZERO | __GFP_NOWARN);$/;"	v	file:
+map_dma	ion_priv.h	/^	struct sg_table * (*map_dma)(struct ion_heap *heap,$/;"	m	struct:ion_heap_ops	typeref:struct:ion_heap_ops::map_dma
+map_kernel	ion_priv.h	/^	void * (*map_kernel)(struct ion_heap *heap, struct ion_buffer *buffer);$/;"	m	struct:ion_heap_ops
+map_user	ion_priv.h	/^	int (*map_user)(struct ion_heap *mapper, struct ion_buffer *buffer,$/;"	m	struct:ion_heap_ops
+misc	ion_test.c	/^	struct miscdevice misc;$/;"	m	struct:ion_test_device	typeref:struct:ion_test_device::miscdevice	file:
+mutex	ion_priv.h	/^	struct mutex mutex;$/;"	m	struct:ion_page_pool	typeref:struct:ion_page_pool::mutex
+name	ion.c	/^	const char *name;$/;"	m	struct:ion_client	file:
+name	ion.h	/^	const char *name;$/;"	m	struct:ion_platform_heap
+name	ion_priv.h	/^	const char *name;$/;"	m	struct:ion_heap
+node	ion.c	/^	struct rb_node node;$/;"	m	struct:ion_client	typeref:struct:ion_client::rb_node	file:
+node	ion.c	/^	struct rb_node node;$/;"	m	struct:ion_handle	typeref:struct:ion_handle::rb_node	file:
+node	ion_priv.h	/^		struct rb_node node;$/;"	m	union:ion_buffer::__anon1	typeref:struct:ion_buffer::__anon1::rb_node
+node	ion_priv.h	/^	struct plist_node node;$/;"	m	struct:ion_heap	typeref:struct:ion_heap::plist_node
+nr	ion.h	/^	int nr;$/;"	m	struct:ion_platform_data
+num_heaps	tegra/tegra_ion.c	/^static int num_heaps;$/;"	v	file:
+num_orders	ion_system_heap.c	/^static const int num_orders = ARRAY_SIZE(orders);$/;"	v	file:
+ops	ion_priv.h	/^	struct ion_heap_ops *ops;$/;"	m	struct:ion_heap	typeref:struct:ion_heap::ion_heap_ops
+order	ion_priv.h	/^	unsigned int order;$/;"	m	struct:ion_page_pool
+order_to_index	ion_system_heap.c	/^static int order_to_index(unsigned int order)$/;"	f	file:
+order_to_size	ion_system_heap.c	/^static inline unsigned int order_to_size(int order)$/;"	f	file:
+orders	ion_system_heap.c	/^static const unsigned int orders[] = {8, 4, 0};$/;"	v	file:
+pages	ion_priv.h	/^	struct page **pages;$/;"	m	struct:ion_buffer	typeref:struct:ion_buffer::page
+phys	ion_priv.h	/^	int (*phys)(struct ion_heap *heap, struct ion_buffer *buffer,$/;"	m	struct:ion_heap_ops
+pid	ion.c	/^	pid_t pid;$/;"	m	struct:ion_client	file:
+pid	ion_priv.h	/^	pid_t pid;$/;"	m	struct:ion_buffer
+pool	ion_carveout_heap.c	/^	struct gen_pool *pool;$/;"	m	struct:ion_carveout_heap	typeref:struct:ion_carveout_heap::gen_pool	file:
+pool	ion_chunk_heap.c	/^	struct gen_pool *pool;$/;"	m	struct:ion_chunk_heap	typeref:struct:ion_chunk_heap::gen_pool	file:
+pools	ion_system_heap.c	/^	struct ion_page_pool *pools[0];$/;"	m	struct:ion_system_heap	typeref:struct:ion_system_heap::ion_page_pool	file:
+pr_fmt	ion_test.c	16;"	d	file:
+priv	ion.h	/^	void *priv;$/;"	m	struct:ion_platform_heap
+priv_phys	ion_priv.h	/^		ion_phys_addr_t priv_phys;$/;"	m	union:ion_buffer::__anon2
+priv_virt	ion_priv.h	/^		void *priv_virt;$/;"	m	union:ion_buffer::__anon2
+private_flags	ion_priv.h	/^	unsigned long private_flags;$/;"	m	struct:ion_buffer
+ref	ion.c	/^	struct kref ref;$/;"	m	struct:ion_handle	typeref:struct:ion_handle::kref	file:
+ref	ion_priv.h	/^	struct kref ref;$/;"	m	struct:ion_buffer	typeref:struct:ion_buffer::kref
+sg_table	ion_priv.h	/^	struct sg_table *sg_table;$/;"	m	struct:ion_buffer	typeref:struct:ion_buffer::sg_table
+shrink	ion_priv.h	/^	int (*shrink)(struct ion_heap *heap, gfp_t gfp_mask, int nr_to_scan);$/;"	m	struct:ion_heap_ops
+shrinker	ion_priv.h	/^	struct shrinker shrinker;$/;"	m	struct:ion_heap	typeref:struct:ion_heap::shrinker
+size	ion.h	/^	size_t size;$/;"	m	struct:ion_platform_heap
+size	ion_chunk_heap.c	/^	unsigned long size;$/;"	m	struct:ion_chunk_heap	file:
+size	ion_priv.h	/^	size_t size;$/;"	m	struct:ion_buffer
+system_heap_ops	ion_system_heap.c	/^static struct ion_heap_ops system_heap_ops = {$/;"	v	typeref:struct:ion_heap_ops	file:
+table	ion_cma_heap.c	/^	struct sg_table *table;$/;"	m	struct:ion_cma_buffer_info	typeref:struct:ion_cma_buffer_info::sg_table	file:
+task	ion.c	/^	struct task_struct *task;$/;"	m	struct:ion_client	typeref:struct:ion_client::task_struct	file:
+task	ion_priv.h	/^	struct task_struct *task;$/;"	m	struct:ion_heap	typeref:struct:ion_heap::task_struct
+task_comm	ion_priv.h	/^	char task_comm[TASK_COMM_LEN];$/;"	m	struct:ion_buffer
+tegra_ion_probe	tegra/tegra_ion.c	/^static int tegra_ion_probe(struct platform_device *pdev)$/;"	f	file:
+tegra_ion_remove	tegra/tegra_ion.c	/^static int tegra_ion_remove(struct platform_device *pdev)$/;"	f	file:
+to_cma_heap	ion_cma_heap.c	34;"	d	file:
+type	ion.h	/^	enum ion_heap_type type;$/;"	m	struct:ion_platform_heap	typeref:enum:ion_platform_heap::ion_heap_type
+type	ion_priv.h	/^	enum ion_heap_type type;$/;"	m	struct:ion_heap	typeref:enum:ion_heap::ion_heap_type
+u64_to_uptr	ion_test.c	33;"	d	file:
+unmap_dma	ion_priv.h	/^	void (*unmap_dma)(struct ion_heap *heap, struct ion_buffer *buffer);$/;"	m	struct:ion_heap_ops
+unmap_kernel	ion_priv.h	/^	void (*unmap_kernel)(struct ion_heap *heap, struct ion_buffer *buffer);$/;"	m	struct:ion_heap_ops
+vaddr	ion_priv.h	/^	void *vaddr;$/;"	m	struct:ion_buffer
+vma	ion.c	/^	struct vm_area_struct *vma;$/;"	m	struct:ion_vma_list	typeref:struct:ion_vma_list::vm_area_struct	file:
+vmas	ion_priv.h	/^	struct list_head vmas;$/;"	m	struct:ion_buffer	typeref:struct:ion_buffer::list_head
+waitqueue	ion_priv.h	/^	wait_queue_head_t waitqueue;$/;"	m	struct:ion_heap

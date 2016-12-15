@@ -37,6 +37,8 @@ static int arm64_enter_idle_state(struct cpuidle_device *dev,
 				  struct cpuidle_driver *drv, int idx)
 {
 	int ret;
+	//TODO:XXX
+	idx = 0;
 
 	if (!idx) {
 		cpu_do_idle();

@@ -308,7 +308,7 @@ static inline bool compact_should_abort(struct compact_control *cc)
 
 	return false;
 }
-
+#ifdef CONFIG_COMPACTION
 /* Returns true if the page is within a block suitable for migration to */
 static bool suitable_migration_target(struct page *page)
 {
@@ -330,7 +330,7 @@ static bool suitable_migration_target(struct page *page)
 	/* Otherwise skip the block */
 	return false;
 }
-
+#endif /* CONFIG_COMPACTION */
 /*
  * Isolate free pages onto a private freelist. If @strict is true, will abort
  * returning 0 on any invalid PFNs or non-free pages inside of the pageblock

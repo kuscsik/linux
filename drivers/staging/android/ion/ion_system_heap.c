@@ -23,12 +23,13 @@
 #include <linux/seq_file.h>
 #include <linux/slab.h>
 #include <linux/vmalloc.h>
+#include <linux/sizes.h>
 #include "ion.h"
 #include "ion_priv.h"
 
-static gfp_t high_order_gfp_flags = (GFP_HIGHUSER | __GFP_ZERO | __GFP_NOWARN |
-				     __GFP_NORETRY) & ~__GFP_WAIT;
-static gfp_t low_order_gfp_flags  = (GFP_HIGHUSER | __GFP_ZERO | __GFP_NOWARN);
+static gfp_t high_order_gfp_flags = (__GFP_ZERO | __GFP_NOWARN |
+				    __GFP_NORETRY) & ~__GFP_WAIT;
+static gfp_t low_order_gfp_flags  = (__GFP_ZERO | __GFP_NOWARN);
 static const unsigned int orders[] = {8, 4, 0};
 static const int num_orders = ARRAY_SIZE(orders);
 static int order_to_index(unsigned int order)
@@ -85,8 +86,10 @@ static void free_buffer_page(struct ion_system_heap *heap,
 
 	if (!cached && !(buffer->private_flags & ION_PRIV_FLAG_SHRINKER_FREE)) {
 		struct ion_page_pool *pool = heap->pools[order_to_index(order)];
-
-		ion_page_pool_free(pool, page);
+		if (buffer->private_flags & ION_PRIV_FLAG_SHRINKER_FREE)
+			ion_page_pool_free_immediate(pool, page);
+		else
+			ion_page_pool_free(pool, page);
 	} else {
 		__free_pages(page, order);
 	}
@@ -234,6 +237,8 @@ static struct ion_heap_ops system_heap_ops = {
 	.unmap_kernel = ion_heap_unmap_kernel,
 	.map_user = ion_heap_map_user,
 	.shrink = ion_system_heap_shrink,
+	.map_iommu = ion_heap_map_iommu,
+	.unmap_iommu = ion_heap_unmap_iommu,
 };
 
 static int ion_system_heap_debug_show(struct ion_heap *heap, struct seq_file *s,
@@ -262,6 +267,23 @@ struct ion_heap *ion_system_heap_create(struct ion_platform_heap *unused)
 {
 	struct ion_system_heap *heap;
 	int i;
+
+#ifdef CONFIG_ARM64
+	extern phys_addr_t dma_zone_total_size;
+	/*
+	 * this is for long-short-leg
+	 */
+	if (dma_zone_total_size) {
+		high_order_gfp_flags = high_order_gfp_flags | GFP_DMA;
+		low_order_gfp_flags = low_order_gfp_flags | GFP_DMA;
+	} else {
+		high_order_gfp_flags = high_order_gfp_flags | GFP_HIGHUSER;
+		low_order_gfp_flags = low_order_gfp_flags | GFP_HIGHUSER;
+	}
+#else
+	high_order_gfp_flags = high_order_gfp_flags | GFP_HIGHUSER;
+	low_order_gfp_flags = low_order_gfp_flags | GFP_HIGHUSER;
+#endif
 
 	heap = kzalloc(sizeof(struct ion_system_heap) +
 			sizeof(struct ion_page_pool *) * num_orders,

@@ -40,6 +40,9 @@
 #define EHCI_MAX_CLKS 3
 #define hcd_to_ehci_priv(h) ((struct ehci_platform_priv *)hcd_to_ehci(h)->priv)
 
+/* set irq affinity to cpu2 when multi-processor */
+#define EHCI_IRQ_AFFINITY_CPU		2
+
 struct ehci_platform_priv {
 	struct clk *clks[EHCI_MAX_CLKS];
 	struct reset_control *rst;
@@ -144,6 +147,7 @@ static int ehci_platform_probe(struct platform_device *dev)
 	struct ehci_platform_priv *priv;
 	struct ehci_hcd *ehci;
 	int err, irq, clk = 0;
+	struct cpumask cpumask;
 
 	if (usb_disabled())
 		return -ENODEV;
@@ -262,6 +266,14 @@ static int ehci_platform_probe(struct platform_device *dev)
 	if (err)
 		goto err_power;
 
+	/* set irq affinity */
+	if ((num_online_cpus() > EHCI_IRQ_AFFINITY_CPU) &&
+		cpu_online(EHCI_IRQ_AFFINITY_CPU)) {
+		cpumask_clear(&cpumask);
+		cpumask_set_cpu(EHCI_IRQ_AFFINITY_CPU, &cpumask);
+		irq_set_affinity(irq, &cpumask);
+	}
+	
 	device_wakeup_enable(hcd->self.controller);
 	platform_set_drvdata(dev, hcd);
 

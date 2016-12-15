@@ -52,6 +52,14 @@ extern int nand_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len);
 #define NAND_MAX_CHIPS		8
 
 /*
+ * This constant declares the max. oobsize / page, which
+ * is supported now. If you add a chip with bigger oobsize/page
+ * adjust this accordingly.
+ */
+#define NAND_MAX_OOBSIZE	4800
+#define NAND_MAX_PAGESIZE	32768
+
+/*
  * Constants for hardware specific CLE/ALE/NCE function
  *
  * These are bits which can be or'ed to set/clear multiple
@@ -85,6 +93,7 @@ extern int nand_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len);
 #define NAND_CMD_PARAM		0xec
 #define NAND_CMD_GET_FEATURES	0xee
 #define NAND_CMD_SET_FEATURES	0xef
+#define NAND_CMD_SYNC_RESET	0xfc
 #define NAND_CMD_RESET		0xff
 
 #define NAND_CMD_LOCK		0x2a
@@ -493,7 +502,7 @@ struct nand_ecc_ctrl {
 	int (*read_page)(struct mtd_info *mtd, struct nand_chip *chip,
 			uint8_t *buf, int oob_required, int page);
 	int (*read_subpage)(struct mtd_info *mtd, struct nand_chip *chip,
-			uint32_t offs, uint32_t len, uint8_t *buf, int page);
+			uint32_t offs, uint32_t len, uint8_t *buf);
 	int (*write_subpage)(struct mtd_info *mtd, struct nand_chip *chip,
 			uint32_t offset, uint32_t data_len,
 			const uint8_t *data_buf, int oob_required);
@@ -687,6 +696,7 @@ struct nand_chip {
 		struct nand_jedec_params jedec_params;
 	};
 
+	int read_retry_type;
 	int read_retries;
 
 	flstate_t state;
@@ -723,6 +733,8 @@ struct nand_chip {
 #define NAND_MFR_EON		0x92
 #define NAND_MFR_SANDISK	0x45
 #define NAND_MFR_INTEL		0x89
+#define NAND_MFR_GIGA		0xc8
+#define NAND_MFR_WINBOND	0xef
 
 /* The maximum expected count of bytes in the NAND ID sequence */
 #define NAND_MAX_ID_LEN 8
@@ -755,6 +767,14 @@ struct nand_chip {
 #define NAND_ECC_STRENGTH(type)		((type)->ecc.strength_ds)
 #define NAND_ECC_STEP(type)		((type)->ecc.step_ds)
 
+#define NAND_RR_NONE                   0x0
+#define NAND_RR_HYNIX_BG_BDIE          0x1
+#define NAND_RR_HYNIX_BG_CDIE          0x2
+#define NAND_RR_HYNIX_CG_ADIE          0x3
+#define NAND_RR_MICRON                 0x4
+#define NAND_RR_SAMSUNG                0x5
+#define NAND_RR_TOSHIBA_V2012          0x6
+#define NAND_RR_TOSHIBA_V2013          0x7
 /**
  * struct nand_flash_dev - NAND Flash Device ID Structure
  * @name: a human-readable name of the NAND chip
@@ -804,6 +824,7 @@ struct nand_flash_dev {
 		uint16_t step_ds;
 	} ecc;
 	int onfi_timing_mode_default;
+	int read_retry_type;
 };
 
 /**

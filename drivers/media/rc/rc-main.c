@@ -250,7 +250,7 @@ static unsigned int ir_update_mapping(struct rc_dev *dev,
 		}
 
 		/* Possibly shrink the keytable, failure is not a problem */
-		ir_resize_table(rc_map, GFP_ATOMIC);
+		//ir_resize_table(rc_map, GFP_ATOMIC);
 	}
 
 	return old_keycode;

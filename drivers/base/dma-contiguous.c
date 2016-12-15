@@ -95,6 +95,11 @@ static inline __maybe_unused phys_addr_t cma_early_percent_memory(void)
 
 #endif
 
+#ifdef CONFIG_64BIT
+/* init cma zone */
+extern int hisi_declare_heap_memory(void);
+#endif
+
 /**
  * dma_contiguous_reserve() - reserve area(s) for contiguous memory handling
  * @limit: End address of the reserved memory (optional, 0 for any).
@@ -113,6 +118,9 @@ void __init dma_contiguous_reserve(phys_addr_t limit)
 
 	pr_debug("%s(limit %08lx)\n", __func__, (unsigned long)limit);
 
+#ifdef CONFIG_64BIT
+	hisi_declare_heap_memory();
+#endif
 	if (size_cmdline != -1) {
 		selected_size = size_cmdline;
 		selected_base = base_cmdline;
@@ -195,6 +203,7 @@ struct page *dma_alloc_from_contiguous(struct device *dev, int count,
 
 	return cma_alloc(dev_get_cma_area(dev), count, align);
 }
+EXPORT_SYMBOL(dma_alloc_from_contiguous);
 
 /**
  * dma_release_from_contiguous() - release allocated pages
@@ -211,6 +220,7 @@ bool dma_release_from_contiguous(struct device *dev, struct page *pages,
 {
 	return cma_release(dev_get_cma_area(dev), pages, count);
 }
+EXPORT_SYMBOL(dma_release_from_contiguous);
 
 /*
  * Support for reserved memory regions defined in device tree

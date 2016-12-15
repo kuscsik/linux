@@ -22,6 +22,7 @@
 #include <asm/cputype.h>
 #include <asm/sections.h>
 #include <asm/cachetype.h>
+#include <asm/fixmap.h>
 #include <asm/sections.h>
 #include <asm/setup.h>
 #include <asm/smp_plat.h>
@@ -393,6 +394,29 @@ SET_MEMORY_FN(x, pte_set_x)
 SET_MEMORY_FN(nx, pte_set_nx)
 
 /*
+ * To avoid TLB flush broadcasts, this uses local_flush_tlb_kernel_range().
+ * As a result, this can only be called with preemption disabled, as under
+ * stop_machine().
+ */
+void __set_fixmap(enum fixed_addresses idx, phys_addr_t phys, pgprot_t prot)
+{
+	unsigned long vaddr = __fix_to_virt(idx);
+	pte_t *pte = pte_offset_kernel(pmd_off_k(vaddr), vaddr);
+
+	/* Make sure fixmap region does not exceed available allocation. */
+	BUILD_BUG_ON(FIXADDR_START + (__end_of_fixed_addresses * PAGE_SIZE) >
+		     FIXADDR_END);
+	BUG_ON(idx >= __end_of_fixed_addresses);
+
+	if (pgprot_val(prot))
+		set_pte_at(NULL, vaddr, pte,
+			pfn_pte(phys >> PAGE_SHIFT, prot));
+	else
+		pte_clear(NULL, vaddr, pte);
+	local_flush_tlb_kernel_range(vaddr, vaddr + PAGE_SIZE);
+}
+
+/*
  * Adjust the PMD section entries according to the CPU in use.
  */
 static void __init build_mem_type_table(void)
@@ -657,10 +681,10 @@ static void __init build_mem_type_table(void)
 pgprot_t phys_mem_access_prot(struct file *file, unsigned long pfn,
 			      unsigned long size, pgprot_t vma_prot)
 {
-	if (!pfn_valid(pfn))
-		return pgprot_noncached(vma_prot);
+	if (!pfn_valid(pfn) && !is_ddr(__pfn_to_phys(pfn)))
+		return pgprot_noncached(vma_prot);/* strong order */
 	else if (file->f_flags & O_SYNC)
-		return pgprot_writecombine(vma_prot);
+		return pgprot_writecombine(vma_prot);/* normal non-cached */
 	return vma_prot;
 }
 EXPORT_SYMBOL(phys_mem_access_prot);
@@ -1008,7 +1032,7 @@ static void __init fill_pmd_gaps(void)
 #define fill_pmd_gaps() do { } while (0)
 #endif
 
-#if defined(CONFIG_PCI) && !defined(CONFIG_NEED_MACH_IO_H)
+#if defined(CONFIG_PCI) && defined(CONFIG_NEED_MACH_IO_H)
 static void __init pci_reserve_io(void)
 {
 	struct static_vm *svm;
@@ -1326,10 +1350,10 @@ static void __init kmap_init(void)
 #ifdef CONFIG_HIGHMEM
 	pkmap_page_table = early_pte_alloc(pmd_off_k(PKMAP_BASE),
 		PKMAP_BASE, _PAGE_KERNEL_TABLE);
-
-	fixmap_page_table = early_pte_alloc(pmd_off_k(FIXADDR_START),
-		FIXADDR_START, _PAGE_KERNEL_TABLE);
 #endif
+
+	early_pte_alloc(pmd_off_k(FIXADDR_START), FIXADDR_START,
+			_PAGE_KERNEL_TABLE);
 }
 
 static void __init map_lowmem(void)
@@ -1349,11 +1373,18 @@ static void __init map_lowmem(void)
 		if (start >= end)
 			break;
 
-		if (end < kernel_x_start || start >= kernel_x_end) {
+		if (end < kernel_x_start) {
 			map.pfn = __phys_to_pfn(start);
 			map.virtual = __phys_to_virt(start);
 			map.length = end - start;
 			map.type = MT_MEMORY_RWX;
+
+			create_mapping(&map);
+		} else if (start >= kernel_x_end) {
+			map.pfn = __phys_to_pfn(start);
+			map.virtual = __phys_to_virt(start);
+			map.length = end - start;
+			map.type = MT_MEMORY_RW;
 
 			create_mapping(&map);
 		} else {

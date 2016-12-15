@@ -1,0 +1,3 @@
+
+obj-$(CONFIG_REGULATOR_Hi3798CV200) += hi3798cv200-regulator.o
+obj-$(CONFIG_REGULATOR_Hi3798MV200) += hi3798mv200-regulator.o

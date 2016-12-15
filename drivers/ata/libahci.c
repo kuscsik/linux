@@ -1565,6 +1565,14 @@ static void ahci_fbs_dec_intr(struct ata_port *ap)
 	u32 fbs = readl(port_mmio + PORT_FBS);
 	int retries = 3;
 
+#if defined(CONFIG_ARCH_HI3798CV2X) || defined(CONFIG_ARCH_HI3798MV2X)
+#define PORT_HBA  0x50
+	u32 hba = readl(port_mmio + PORT_HBA);
+	hba = (hba>>12)&0xf;
+	if (0xa == hba)
+		return;
+#endif
+
 	DPRINTK("ENTER\n");
 	BUG_ON(!pp->fbs_enabled);
 

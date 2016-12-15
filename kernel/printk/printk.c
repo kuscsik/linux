@@ -55,6 +55,10 @@
 #include "console_cmdline.h"
 #include "braille.h"
 
+#ifdef CONFIG_EARLY_PRINTK_DIRECT
+extern void printascii(char *);
+#endif
+
 int console_printk[4] = {
 	CONSOLE_LOGLEVEL_DEFAULT,	/* console_loglevel */
 	MESSAGE_LOGLEVEL_DEFAULT,	/* default_message_loglevel */
@@ -1707,6 +1711,10 @@ asmlinkage int vprintk_emit(int facility, int level,
 		}
 	}
 
+#ifdef CONFIG_EARLY_PRINTK_DIRECT
+	printascii(text);
+#endif
+
 	if (level == -1)
 		level = default_message_loglevel;
 
@@ -2029,21 +2037,10 @@ MODULE_PARM_DESC(console_suspend, "suspend console during suspend"
  */
 void suspend_console(void)
 {
-	if (!console_suspend_enabled)
-		return;
-	printk("Suspending console(s) (use no_console_suspend to debug)\n");
-	console_lock();
-	console_suspended = 1;
-	up_console_sem();
 }
 
 void resume_console(void)
 {
-	if (!console_suspend_enabled)
-		return;
-	down_console_sem();
-	console_suspended = 0;
-	console_unlock();
 }
 
 /**
